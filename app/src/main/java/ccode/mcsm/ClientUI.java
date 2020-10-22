@@ -20,14 +20,13 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
-import ccode.mcsm.net.ActiveSignal;
-import ccode.mcsm.net.ConnectMessage;
-import ccode.mcsm.net.ErrorMessage;
-import ccode.mcsm.net.InfoMessage;
-import ccode.mcsm.net.SaveServer;
-import ccode.mcsm.net.ServerConnectSuccess;
-import ccode.mcsm.net.StartServer;
-import ccode.mcsm.net.StopServer;
+import ccode.mcsm.net.message.ConnectMessage;
+import ccode.mcsm.net.message.ErrorMessage;
+import ccode.mcsm.net.message.InfoMessage;
+import ccode.mcsm.net.message.SaveServer;
+import ccode.mcsm.net.message.ServerConnectSuccess;
+import ccode.mcsm.net.message.StartServer;
+import ccode.mcsm.net.message.StopServer;
 
 public class ClientUI extends JFrame {
 
@@ -49,7 +48,6 @@ public class ClientUI extends JFrame {
 	private JPanel controlPanel;
 	private JButton startServerButton;
 	private JButton saveServerButton;
-	private JButton sendActiveButton;
 	private JButton stopServerButton;
 	private JLabel serverInfo;
 	
@@ -131,21 +129,6 @@ public class ClientUI extends JFrame {
 		con.weighty = 1;
 		controlPanel.add(saveServerButton, con);
 		
-		sendActiveButton = new JButton("Send Active Signal");
-		sendActiveButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				activeSignalButtonClicked();
-			}
-		});
-		con.gridheight = 1;
-		con.gridwidth = 2;
-		con.gridx = 0;
-		con.gridy = 1;
-		con.weightx = 1;
-		con.weighty = 1;
-		controlPanel.add(sendActiveButton, con);
-		
 		stopServerButton = new JButton("Stop Server");
 		stopServerButton.addActionListener(new ActionListener() {
 			@Override
@@ -192,12 +175,6 @@ public class ClientUI extends JFrame {
 	private void saveServerButtonClicked() {
 		if(client != null && client.isConnected()) {
 			client.sendTCP(new SaveServer());
-		}
-	}
-	
-	private void activeSignalButtonClicked() {
-		if(client != null && client.isConnected()) {
-			client.sendTCP(new ActiveSignal());
 		}
 	}
 	

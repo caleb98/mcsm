@@ -1,4 +1,4 @@
-package ccode.mcsm.net;
+package ccode.mcsm.net.message;
 
 public class ErrorMessage {
 

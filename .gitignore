@@ -7,6 +7,9 @@ build
 # sublime text workspace files
 *.sublime-workspace
 
+# minecraft test server dir
+test_server/
+
 ### Eclipse ###
 .metadata
 bin/
