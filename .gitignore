@@ -4,6 +4,9 @@
 # Ignore Gradle build output directory
 build
 
+# sublime text workspace files
+*.sublime-workspace
+
 ### Eclipse ###
 .metadata
 bin/
@@ -61,10 +64,6 @@ local.properties
 .cache-main
 .scala_dependencies
 .worksheet
-
-# Uncomment this line if you wish to ignore the project description file.
-# Typically, this file would be tracked if it contains build/dependency configurations:
-#.project
 
 ### Eclipse Patch ###
 # Spring Boot Tooling
