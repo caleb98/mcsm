@@ -5,10 +5,14 @@ import java.io.IOException;
 import com.esotericsoftware.kryonet.Server;
 
 import ccode.mcsm.net.KryoCreator;
+import ccode.mcsm.scheduling.Timestamp;
 import ccode.mcsm.task.Tasks;
 
 public class MCSMStart {
 	public static void main(String[] args) {
+		
+		System.out.println(Timestamp.now());
+		System.exit(0);
 		
 		if(args.length != 1) {
 			System.out.println("Usage: mcremote.jar <server jarfile path>");
