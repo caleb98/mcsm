@@ -60,9 +60,11 @@ public abstract class MinecraftServerEvent {
 		return events;
 	}
 	
+	public final String id;
 	public final String timestamp;
 	
-	public MinecraftServerEvent(String timestamp) {
+	public MinecraftServerEvent(String id, String timestamp) {
+		this.id = id;
 		this.timestamp = timestamp;
 	}
 	

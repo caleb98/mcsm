@@ -25,6 +25,9 @@ public abstract class Action {
 		map.put(ListActionsAction.ID, new ListActionsAction());
 		map.put(ListTasksAction.ID, new ListTasksAction());
 		map.put(SetPropertyAction.ID, new SetPropertyAction());
+		map.put(WaitForAction.ID, new WaitForAction());
+		map.put(ScheduleAction.ID, new ScheduleAction());
+		map.put(DelayAction.ID, new DelayAction());
 		
 		actions = Collections.unmodifiableMap(map);
 	}
@@ -36,8 +39,6 @@ public abstract class Action {
 	public static Action get(String actionID) {
 		return actions.get(actionID);
 	}
-
-	Action() {}
 	
 	/**
 	 * Runs this action.

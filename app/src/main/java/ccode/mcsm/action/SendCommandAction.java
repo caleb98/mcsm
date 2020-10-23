@@ -13,8 +13,8 @@ public class SendCommandAction extends Action {
 		
 		//Make sure the server is running
 		if(!manager.getServer().isRunning()) {
-			System.out.println("Unable to send command: server not running");
-			return 0;
+			System.err.println("Error in SendCommand: server not running");
+			return -1;
 		}
 		
 		try {

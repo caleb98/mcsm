@@ -14,6 +14,7 @@ public class Tasks {
 
 	private static final String TASKS_FILE = "tasks";
 	private static final HashMap<String, String[]> tasks = new HashMap<>();
+	private static int taskCount = 0;
 	
 	public static void loadTasks() throws IOException {
 		BufferedReader tasksReader = new BufferedReader(new FileReader(TASKS_FILE));
@@ -74,17 +75,25 @@ public class Tasks {
 	
 	public static void executeTask(String task, MinecraftServerManager manager) {
 		if(tasks.containsKey(task)) {
-			for(String fullCommand : tasks.get(task)) {
-				String actionID = fullCommand.split("\s+")[0];
-				String arguments = fullCommand.substring(actionID.length()).trim();
-				Action action = Action.get(actionID);
-				if(action != null) {
-					Action.get(actionID).execute(manager, arguments);
+			Thread taskThread = new Thread(()->{
+				for(String fullCommand : tasks.get(task)) {
+					String actionID = fullCommand.split("\s+")[0];
+					String arguments = fullCommand.substring(actionID.length()).trim();
+					Action action = Action.get(actionID);
+					if(action != null) {
+						int result = Action.get(actionID).execute(manager, arguments);
+						if(result < 0) {
+							System.out.printf("Action %s failed (%d); task %s stopping.\n", actionID, result, task);
+							break;
+						}
+					}
+					else {
+						System.err.printf("Error in task \'%s\': listed action \'%s\' does not exist!\n", task, actionID);
+					}
 				}
-				else {
-					System.err.printf("Error in task \'%s\': listed action \'%s\' does not exist!\n", task, actionID);
-				}
-			}
+			}, "Task-" + taskCount++ + "-" + task);
+			taskThread.setDaemon(true);
+			taskThread.start();
 		}
 		else {
 			System.out.printf("Unable to execute task \'%s\': task not found.\n", task);

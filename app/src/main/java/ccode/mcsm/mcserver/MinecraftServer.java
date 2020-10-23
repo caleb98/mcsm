@@ -11,8 +11,17 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Properties;
 
-public class MinecraftServer {
+import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.mcserver.event.EventProducer;
+import ccode.mcsm.mcserver.event.MinecraftServerEvent;
+import ccode.mcsm.mcserver.event.ServerStartedEvent;
+import ccode.mcsm.mcserver.event.ServerStoppedEvent;
+import ccode.mcsm.scheduling.TimeFormatters;
 
+public class MinecraftServer implements Runnable {
+	
+	private MinecraftServerManager manager;
+	
 	private String[] arguments;
 
 	private Properties properties = new Properties();
@@ -23,7 +32,8 @@ public class MinecraftServer {
 	private BufferedReader stderr;
 	private BufferedWriter stdin;
 	
-	public MinecraftServer(String... args) {
+	public MinecraftServer(MinecraftServerManager manager, String... args) {
+		this.manager = manager;
 		arguments = args;
 		
 		try {
@@ -62,6 +72,9 @@ public class MinecraftServer {
 		stderr = new BufferedReader(new InputStreamReader(stderrStream));
 		stdin = new BufferedWriter(new OutputStreamWriter(stdinStream));
 		
+		Thread serverMonitor = new Thread(this, "Minecraft-Server-Monitor");
+		serverMonitor.start();
+		
 	}
 	
 	public BufferedReader stdout() {
@@ -78,6 +91,48 @@ public class MinecraftServer {
 	
 	public boolean isRunning() {
 		return serverProcess != null && serverProcess.isAlive();
+	}
+	
+	@Override
+	public void run() {
+		manager.addEvent(new ServerStartedEvent(TimeFormatters.now()));
+		System.out.println("Starting server process thread...");
+		
+		try {
+			
+			while(isRunning()) {
+				
+				String next;
+				
+				while(stdout.ready() && (next = stdout.readLine()) != null) {
+					System.out.println("[MinecraftServer]: " + next);
+					checkLineForEvent(next);
+				}
+				
+				while(stderr.ready() && (next = stderr.readLine()) != null) {
+					System.err.println("[MinecraftServer]: " + next);
+					checkLineForEvent(next);
+				}
+				
+				Thread.sleep(1);
+				
+			}
+			
+		} catch (InterruptedException | IOException e) {
+			e.printStackTrace();
+		}
+		
+		manager.addEvent(new ServerStoppedEvent(TimeFormatters.now()));
+		System.out.println("Server process closed.");
+	}
+	
+	private void checkLineForEvent(String line) {
+		for(EventProducer producer : MinecraftServerEvent.getEvents()) {
+			MinecraftServerEvent event = producer.produce(line); 
+			if(event != null) {
+				manager.addEvent(event);
+			}
+		}
 	}
 	
 	/**
