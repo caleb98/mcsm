@@ -7,7 +7,7 @@ import com.esotericsoftware.kryonet.Server;
 import ccode.mcsm.net.KryoCreator;
 import ccode.mcsm.task.Tasks;
 
-public class ServerStart {
+public class MCSMStart {
 	public static void main(String[] args) {
 		
 		if(args.length != 1) {

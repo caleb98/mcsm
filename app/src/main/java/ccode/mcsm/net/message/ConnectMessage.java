@@ -5,6 +5,7 @@ public class ConnectMessage {
 	public final String username;
 	public final String password;
 
+	@SuppressWarnings("unused")
 	private ConnectMessage() {
 		username = null;
 		password = null;

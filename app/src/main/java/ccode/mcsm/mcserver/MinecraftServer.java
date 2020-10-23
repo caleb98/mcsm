@@ -2,15 +2,21 @@ package ccode.mcsm.mcserver;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.Properties;
 
 public class MinecraftServer {
 
 	private String[] arguments;
+
+	private Properties properties = new Properties();
+	private boolean arePropsLoaded = false;
 	
 	private Process serverProcess;
 	private BufferedReader stdout;
@@ -19,6 +25,26 @@ public class MinecraftServer {
 	
 	public MinecraftServer(String... args) {
 		arguments = args;
+		
+		try {
+			properties.load(new FileReader("server.properties"));
+			arePropsLoaded = true;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public boolean arePropsLoaded() {
+		return arePropsLoaded;
+	}
+	
+	public String getProperty(String property) {
+		return properties.getProperty(property);
+	}
+	
+	public void setProperty(String property, String value) throws IOException {
+		properties.setProperty(property, value);
+		properties.store(new FileWriter("server.properties"), null);
 	}
 	
 	public void start() throws IOException {

@@ -1,6 +1,5 @@
 package ccode.mcsm;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -10,13 +9,11 @@ import com.esotericsoftware.kryonet.Listener;
 
 import ccode.mcsm.action.Action;
 import ccode.mcsm.mcserver.MinecraftServer;
+import ccode.mcsm.net.message.ActionMessage;
 import ccode.mcsm.net.message.ConnectMessage;
 import ccode.mcsm.net.message.ErrorMessage;
 import ccode.mcsm.net.message.InfoMessage;
-import ccode.mcsm.net.message.SaveServer;
 import ccode.mcsm.net.message.ServerConnectSuccess;
-import ccode.mcsm.net.message.StartServer;
-import ccode.mcsm.net.message.StopServer;
 
 public class MinecraftServerManager extends Listener {
 
@@ -55,14 +52,11 @@ public class MinecraftServerManager extends Listener {
 				
 				if(command.equals("exit")) {
 					if(server.isRunning()) {
-						System.out.println("[remote]: Server not stopped. Please stop the server before closing the remote manager.");
+						System.out.println("Server not stopped. Please stop the server before closing the remote manager.");
 					}
 					else {
 						break;
 					}
-				}
-				else if(command.equals("tasks")) {
-					
 				}
 				else if(!handled) {
 					System.out.println("Unrecognized action: " + command);
@@ -71,7 +65,7 @@ public class MinecraftServerManager extends Listener {
 			}
 			
 			keyboard.close();
-			System.out.println("[remote]: Exiting...");
+			System.out.println("Exiting...");
 			System.exit(0);
 			
 		}, "Keyboard-Listener-Thread");
@@ -120,39 +114,10 @@ public class MinecraftServerManager extends Listener {
 		}
 		
 		//Connection is verified, so continue processing the message
-		try {
-			
-			if(object instanceof SaveServer) {
-				if(server.isRunning()) {
-					server.save();
-					server.sendCommand("say Server saved.");
-					connection.sendTCP(new InfoMessage("Server saved."));
-				}
-				else {
-					connection.sendTCP(new ErrorMessage("Can't save, server not started."));
-				}
-			}
-			else if(object instanceof StartServer) {
-				if(server.isRunning()) {
-					connection.sendTCP(new ErrorMessage("Server already started."));
-				}
-				else {
-					server.start();
-					connection.sendTCP(new InfoMessage("Server started."));
-				}
-			}
-			else if(object instanceof StopServer) {
-				if(server.isRunning()) {
-					server.stop();
-					connection.sendTCP(new InfoMessage("Server stopped."));
-				}
-				else {
-					connection.sendTCP(new ErrorMessage("Server already stopped."));
-				}
-			}
-			
-		} catch (IOException e) {
-			e.printStackTrace();
+		if(object instanceof ActionMessage) {
+			ActionMessage message = (ActionMessage) object;
+			Action.get(message.action).execute(this);
+			connection.sendTCP(new InfoMessage("Executed " + message.action));
 		}
 		
 	}

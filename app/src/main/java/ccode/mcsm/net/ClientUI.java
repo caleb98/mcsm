@@ -20,13 +20,14 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
+import ccode.mcsm.action.SaveServerAction;
+import ccode.mcsm.action.StartServerAction;
+import ccode.mcsm.action.StopServerAction;
+import ccode.mcsm.net.message.ActionMessage;
 import ccode.mcsm.net.message.ConnectMessage;
 import ccode.mcsm.net.message.ErrorMessage;
 import ccode.mcsm.net.message.InfoMessage;
-import ccode.mcsm.net.message.SaveServer;
 import ccode.mcsm.net.message.ServerConnectSuccess;
-import ccode.mcsm.net.message.StartServer;
-import ccode.mcsm.net.message.StopServer;
 
 public class ClientUI extends JFrame {
 
@@ -168,19 +169,19 @@ public class ClientUI extends JFrame {
 
 	private void startServerButtonClicked() {
 		if(client != null && client.isConnected()) {
-			client.sendTCP(new StartServer());
+			client.sendTCP(new ActionMessage(StartServerAction.ID));
 		}
 	}
 
 	private void saveServerButtonClicked() {
 		if(client != null && client.isConnected()) {
-			client.sendTCP(new SaveServer());
+			client.sendTCP(new ActionMessage(SaveServerAction.ID));
 		}
 	}
 	
 	private void stopServerButtonClicked() {
 		if(client != null && client.isConnected()) {
-			client.sendTCP(new StopServer());
+			client.sendTCP(new ActionMessage(StopServerAction.ID));
 		}
 	}
 
