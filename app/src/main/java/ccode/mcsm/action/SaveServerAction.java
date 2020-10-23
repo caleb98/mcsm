@@ -4,6 +4,9 @@ import java.io.IOException;
 
 import ccode.mcsm.MinecraftServerManager;
 
+/**
+ * An action that saves the server via the in game command save-all.
+ */
 public class SaveServerAction extends Action {
 
 	public static final String ID = "SaveServer";

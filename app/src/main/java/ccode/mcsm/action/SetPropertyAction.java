@@ -4,6 +4,10 @@ import java.io.IOException;
 
 import ccode.mcsm.MinecraftServerManager;
 
+/**
+ * An action that sets a specific property in the server.properties
+ * file and immediately saves that property change.
+ */
 public class SetPropertyAction extends Action {
 
 	public static final String ID = "SetProperty";

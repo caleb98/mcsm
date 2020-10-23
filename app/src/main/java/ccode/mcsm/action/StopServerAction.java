@@ -4,6 +4,9 @@ import java.io.IOException;
 
 import ccode.mcsm.MinecraftServerManager;
 
+/**
+ * An action that stops the minecraft server process.
+ */
 public class StopServerAction extends Action {
 
 	public static final String ID = "StopServer";
