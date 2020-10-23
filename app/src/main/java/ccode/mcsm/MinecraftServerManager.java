@@ -1,6 +1,5 @@
 package ccode.mcsm;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,6 +8,7 @@ import java.util.Scanner;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
+import ccode.mcsm.action.MCSMAction;
 import ccode.mcsm.mcserver.MinecraftServer;
 import ccode.mcsm.net.message.ConnectMessage;
 import ccode.mcsm.net.message.ErrorMessage;
@@ -18,7 +18,7 @@ import ccode.mcsm.net.message.ServerConnectSuccess;
 import ccode.mcsm.net.message.StartServer;
 import ccode.mcsm.net.message.StopServer;
 
-public class MinecraftServerManager extends Listener implements Runnable {
+public class MinecraftServerManager extends Listener {
 
 	private MinecraftServer server;
 	
@@ -36,27 +36,24 @@ public class MinecraftServerManager extends Listener implements Runnable {
 		Thread keyboardListener = new Thread(()->{
 			
 			Scanner keyboard = new Scanner(System.in);
-			String input;
+			String command;
+			String args;
 			
 			while(true)	 {
 				
-				input = keyboard.nextLine();
+				command = keyboard.next();
+				args = keyboard.nextLine().trim();
 				
-				if(input.equals("start")) {
-					if(server.isRunning()) {
-						System.out.println("[remote]: Server already started.");
-					}
-					else {
-						try {
-							server.start();
-							new Thread(this, "MinecraftServer-Process-Watcher").start();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+				boolean handled = false;
+				for(String action : MCSMAction.getActions()) {
+					if(command.equals(action)) {
+						MCSMAction.get(action).execute(this, args);
+						handled = true;
+						break;
 					}
 				}
-				else if(input.equals("exit")) {
+				
+				if(command.equals("exit")) {
 					if(server.isRunning()) {
 						System.out.println("[remote]: Server not stopped. Please stop the server before closing the remote manager.");
 					}
@@ -64,13 +61,8 @@ public class MinecraftServerManager extends Listener implements Runnable {
 						break;
 					}
 				}
-				else {
-					if(server.isRunning()) {
-						server.sendCommand(input);
-					}
-					else {
-						System.out.println("[remote]: Unable to issue server commands. Please start server first.");
-					}
+				else if(!handled) {
+					System.out.println("Unrecognized action: " + command);
 				}
 				
 			}
@@ -162,44 +154,16 @@ public class MinecraftServerManager extends Listener implements Runnable {
 		
 	}
 	
-	@Override
-	public void run() {
-		System.out.println("Starting server process thread...");
-		
-		BufferedReader std = server.stdout();
-		BufferedReader err = server.stderr();
-		
-		try {
-			
-			long prev = System.currentTimeMillis();
-			long current;
-			long delta;
-			
-			while(server.isRunning()) {
-				
-				current = System.currentTimeMillis();
-				delta = current - prev;
-				
-				String next;
-				
-				while(std.ready() && (next = std.readLine()) != null) {
-					System.out.println("[MinecraftServer]: " + next);
-				}
-				
-				while(err.ready() && (next = err.readLine()) != null) {
-					System.err.println("[MinecraftServer]: " + next);
-				}
-				
-				prev = current;
-				
-				Thread.sleep(1);
-				
-			}
-		} catch (InterruptedException | IOException e) {
-			e.printStackTrace();
-		}
-		
-		System.out.println("Server process closed.");
+	public MinecraftServer getServer() {
+		return server;
+	}
+	
+	public ArrayList<Connection> getVerifiedConnections() {
+		return verified;
+	}
+	
+	public HashMap<Connection, String> getUsernames() {
+		return usernames;
 	}
 	
 }

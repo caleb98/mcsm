@@ -1,4 +1,4 @@
-package ccode.mcsm;
+package ccode.mcsm.net;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Client;

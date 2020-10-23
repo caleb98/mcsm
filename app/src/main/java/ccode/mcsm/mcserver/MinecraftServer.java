@@ -58,46 +58,34 @@ public class MinecraftServer {
 	 * Sends a given command to the server process.
 	 * @param command
 	 */
-	public void sendCommand(String command) {
-		try {
-			stdin.write(command + "\n");
-			stdin.flush();
-		} catch (IOException e) {
-			System.err.printf("Error writing command \'%s\' to server: %s\n", command, e.getMessage());
-		}
+	public void sendCommand(String command) throws IOException {
+		stdin.write(command + "\n");
+		stdin.flush();
 	}
 	
-	public void sendCommands(String... commands) {
+	public void sendCommands(String... commands) throws IOException {
 		for(String command : commands) {
-			try {
-				stdin.write(command + "\n");
-			} catch (IOException e) {
-				System.err.printf("Error writing command \'%s\' to server: %s\n", command, e.getMessage());
-			}
+			stdin.write(command + "\n");
 		}
-		try {
-			stdin.flush();
-		} catch (IOException e) {
-			System.err.printf("Error flushing commands: %s\n", e.getMessage());
-		}
+		stdin.flush();
 	}
 	
 	// ==========================================
 	// UTILITY METHODS FOR COMMON SERVER COMMANDS
 	// ==========================================
-	public void stop() {
+	public void stop() throws IOException {
 		sendCommand("stop");
 	}
 	
-	public void save() {
+	public void save() throws IOException {
 		sendCommand("save-all");
 	}
 	
-	public void op(String player) {
+	public void op(String player) throws IOException {
 		sendCommand("op " + player);
 	}
 	
-	public void deop(String player) {
+	public void deop(String player) throws IOException {
 		sendCommand("deop" + player);
 	}
 	
