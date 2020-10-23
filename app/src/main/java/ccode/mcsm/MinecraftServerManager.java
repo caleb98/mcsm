@@ -8,7 +8,7 @@ import java.util.Scanner;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
-import ccode.mcsm.action.MCSMAction;
+import ccode.mcsm.action.Action;
 import ccode.mcsm.mcserver.MinecraftServer;
 import ccode.mcsm.net.message.ConnectMessage;
 import ccode.mcsm.net.message.ErrorMessage;
@@ -45,9 +45,9 @@ public class MinecraftServerManager extends Listener {
 				args = keyboard.nextLine().trim();
 				
 				boolean handled = false;
-				for(String action : MCSMAction.getActions()) {
+				for(String action : Action.getActions()) {
 					if(command.equals(action)) {
-						MCSMAction.get(action).execute(this, args);
+						Action.get(action).execute(this, args);
 						handled = true;
 						break;
 					}
@@ -60,6 +60,9 @@ public class MinecraftServerManager extends Listener {
 					else {
 						break;
 					}
+				}
+				else if(command.equals("tasks")) {
+					
 				}
 				else if(!handled) {
 					System.out.println("Unrecognized action: " + command);

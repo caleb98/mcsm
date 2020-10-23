@@ -9,12 +9,12 @@ import ccode.mcsm.MinecraftServerManager;
 /**
  * Represents a single action that the server manager may execute.
  */
-public abstract class MCSMAction {
+public abstract class Action {
 	
-	private static final Map<String, MCSMAction> actions;
+	private static final Map<String, Action> actions;
 	
 	static {
-		HashMap<String, MCSMAction> map = new HashMap<>();
+		HashMap<String, Action> map = new HashMap<>();
 		
 		//Add all actions here
 		map.put(StartServerAction.ID, new StartServerAction());
@@ -22,6 +22,8 @@ public abstract class MCSMAction {
 		map.put(StopServerAction.ID, new StopServerAction());
 		map.put(SendCommandAction.ID, new SendCommandAction());
 		map.put(TaskAction.ID, new TaskAction());
+		map.put(ListActionsAction.ID, new ListActionsAction());
+		map.put(ListTasksAction.ID, new ListTasksAction());
 		
 		actions = Collections.unmodifiableMap(map);
 	}
@@ -30,11 +32,11 @@ public abstract class MCSMAction {
 		return actions.keySet();
 	}
 	
-	public static MCSMAction get(String actionID) {
+	public static Action get(String actionID) {
 		return actions.get(actionID);
 	}
 
-	MCSMAction() {}
+	Action() {}
 	
 	/**
 	 * Runs this action.

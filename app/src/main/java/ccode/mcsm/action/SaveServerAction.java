@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import ccode.mcsm.MinecraftServerManager;
 
-public class SaveServerAction extends MCSMAction {
+public class SaveServerAction extends Action {
 
 	public static final String ID = "SaveServer";
 	
