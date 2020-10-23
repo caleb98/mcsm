@@ -1,4 +1,4 @@
-package ccode.mcsm;
+package ccode.mcsm.net;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;

@@ -4,12 +4,22 @@ import java.io.IOException;
 
 import com.esotericsoftware.kryonet.Server;
 
+import ccode.mcsm.net.KryoCreator;
+import ccode.mcsm.task.Tasks;
+
 public class ServerStart {
 	public static void main(String[] args) {
 		
 		if(args.length != 1) {
 			System.out.println("Usage: mcremote.jar <server jarfile path>");
 			System.exit(0);
+		}
+		
+		//Load the tasks from the user file
+		try {
+			Tasks.loadTasks();
+		} catch (IOException e) {
+			System.err.printf("Unable to load tasks: %s\n", e.getMessage());
 		}
 		
 		Server server = KryoCreator.createServer();
