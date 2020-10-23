@@ -11,6 +11,11 @@ import ccode.mcsm.MinecraftServerManager;
 import ccode.mcsm.scheduling.Scheduler;
 import ccode.mcsm.scheduling.TimeFormatters;
 
+/**
+ * Schedules an action to be carried out at a specified later date. The 
+ * date for this action should follow the format specified by the 
+ * <code>DateTimeFormatter.ISO_LOCAL_DATE_TIME</code> formatter.
+ */
 public class ScheduleAction extends Action {
 
 	public static final String ID = "Schedule";

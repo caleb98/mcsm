@@ -8,6 +8,11 @@ import ccode.mcsm.Block;
 import ccode.mcsm.MinecraftServerManager;
 import ccode.mcsm.scheduling.Scheduler;
 
+/**
+ * An action that creates a specified duration delay in the execution of
+ * a task sequence. Has no effect if ran from the command line directly
+ * (although it will still create a scheduler entry.)
+ */
 public class DelayAction extends Action {
 
 	public static final String ID = "Delay";

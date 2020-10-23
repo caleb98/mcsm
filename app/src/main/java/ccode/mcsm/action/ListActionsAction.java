@@ -5,6 +5,10 @@ import java.util.Collections;
 
 import ccode.mcsm.MinecraftServerManager;
 
+/**
+ * A utility action that prints each of the available actions
+ * to the console.
+ */
 public class ListActionsAction extends Action {
 	
 	public static final String ID = "ListActions";

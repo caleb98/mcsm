@@ -6,6 +6,10 @@ import java.util.Collections;
 import ccode.mcsm.MinecraftServerManager;
 import ccode.mcsm.task.Tasks;
 
+/**
+ * A utility action that prints a list of all the available
+ * Tasks to the console.
+ */
 public class ListTasksAction extends Action {
 
 	public static final String ID = "ListTasks";

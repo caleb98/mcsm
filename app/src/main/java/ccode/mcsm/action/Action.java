@@ -8,6 +8,9 @@ import java.util.Set;
 import ccode.mcsm.MinecraftServerManager;
 /**
  * Represents a single action that the server manager may execute.
+ * All actions are represented with the format <code>&ltActionID&gt 
+ * &ltArguments&gt</code>. The parsing and format of action arguments
+ * is dependant upon the action.
  */
 public abstract class Action {
 	
@@ -32,10 +35,20 @@ public abstract class Action {
 		actions = Collections.unmodifiableMap(map);
 	}
 	
+	/**
+	 * Gets the action ids registered in the Action class static
+	 * initializer.
+	 * @return a set containing all action ids
+	 */
 	public static Set<String> getActions() {
 		return actions.keySet();
 	}
 	
+	/**
+	 * Get's an action using an action id
+	 * @param actionID action to retrieve
+	 * @return action; null if that action isn't registered/doesn't exist
+	 */
 	public static Action get(String actionID) {
 		return actions.get(actionID);
 	}

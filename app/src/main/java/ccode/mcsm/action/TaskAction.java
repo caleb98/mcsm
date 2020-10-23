@@ -3,6 +3,9 @@ package ccode.mcsm.action;
 import ccode.mcsm.MinecraftServerManager;
 import ccode.mcsm.task.Tasks;
 
+/**
+ * An action that runs a task.
+ */
 public class TaskAction extends Action {
 
 	public static final String ID = "Task";

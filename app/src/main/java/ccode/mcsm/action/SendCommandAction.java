@@ -4,6 +4,10 @@ import java.io.IOException;
 
 import ccode.mcsm.MinecraftServerManager;
 
+/**
+ * An action that sends a specified server command directly
+ * to the minecraft server process.
+ */
 public class SendCommandAction extends Action {
 
 	public static final String ID = "SendCommand";

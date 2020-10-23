@@ -3,6 +3,12 @@ package ccode.mcsm.action;
 import ccode.mcsm.Block;
 import ccode.mcsm.MinecraftServerManager;
 
+/**
+ * An action that blocks the execution of a Task list until a specified
+ * event is fired. As of right now, this only allows for checking that
+ * a specific event is fired. The properties of the event itself are
+ * invisible to this action. 
+ */
 public class WaitForAction extends Action {
 
 	public static final String ID = "WaitFor";
