@@ -24,6 +24,7 @@ public abstract class Action {
 		map.put(TaskAction.ID, new TaskAction());
 		map.put(ListActionsAction.ID, new ListActionsAction());
 		map.put(ListTasksAction.ID, new ListTasksAction());
+		map.put(SetPropertyAction.ID, new SetPropertyAction());
 		
 		actions = Collections.unmodifiableMap(map);
 	}
