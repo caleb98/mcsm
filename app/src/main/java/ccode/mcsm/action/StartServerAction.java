@@ -3,7 +3,6 @@ package ccode.mcsm.action;
 import java.io.IOException;
 
 import ccode.mcsm.MinecraftServerManager;
-import ccode.mcsm.MinecraftServerWatcher;
 import ccode.mcsm.mcserver.MinecraftServer;
 
 public class StartServerAction extends Action {
@@ -23,7 +22,6 @@ public class StartServerAction extends Action {
 		//Start the server
 		try {
 			server.start();
-			MinecraftServerWatcher.create(server).start();
 		} catch (IOException e) {
 			System.err.printf("Unable to start MinecraftServer process: %s\n", e.getMessage());
 			return -1;

@@ -2,6 +2,8 @@ package ccode.mcsm;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Scanner;
 
 import com.esotericsoftware.kryonet.Connection;
@@ -9,6 +11,8 @@ import com.esotericsoftware.kryonet.Listener;
 
 import ccode.mcsm.action.Action;
 import ccode.mcsm.mcserver.MinecraftServer;
+import ccode.mcsm.mcserver.event.EventListener;
+import ccode.mcsm.mcserver.event.MinecraftServerEvent;
 import ccode.mcsm.net.message.ActionMessage;
 import ccode.mcsm.net.message.ConnectMessage;
 import ccode.mcsm.net.message.ErrorMessage;
@@ -18,6 +22,9 @@ import ccode.mcsm.net.message.ServerConnectSuccess;
 public class MinecraftServerManager extends Listener {
 
 	private MinecraftServer server;
+	private LinkedList<MinecraftServerEvent> eventQueue = new LinkedList<>();
+	private ArrayList<EventListener> eventListeners = new ArrayList<>();
+	private Object eventListenersLock = new Object();
 	
 	private String password;
 	
@@ -27,10 +34,10 @@ public class MinecraftServerManager extends Listener {
 	public MinecraftServerManager(String... arguments) {
 		this.password = "password"; //TODO: set this up properly
 		
-		server = new MinecraftServer(arguments);
+		server = new MinecraftServer(this, arguments);
 		
 		//Start keyboard listening thread
-		Thread keyboardListener = new Thread(()->{
+		Thread inputProcessor = new Thread(()->{
 			
 			Scanner keyboard = new Scanner(System.in);
 			String command;
@@ -68,10 +75,46 @@ public class MinecraftServerManager extends Listener {
 			System.out.println("Exiting...");
 			System.exit(0);
 			
-		}, "Keyboard-Listener-Thread");
+		}, "Input-Processor-Thread");
 		
-		keyboardListener.start();
+		Thread eventProcessor = new Thread(()->{
+			while(true) {
+				try {
+					
+					while(eventQueue.peek() != null) {
+						MinecraftServerEvent event = eventQueue.remove();
+						synchronized(eventListenersLock) {
+							Iterator<EventListener> iter = eventListeners.iterator();
+							while(iter.hasNext()) {
+								if(iter.next().process(event)) {
+									iter.remove();
+								}
+							}
+						}
+					}
+					
+					Thread.sleep(1);
+					
+				} catch (InterruptedException e) {
+					break;
+				}
+			}
+		}, "Event-Processor-Thread");
 		
+		inputProcessor.start();
+		eventProcessor.setDaemon(true);
+		eventProcessor.start();
+		
+	}
+	
+	public void addEvent(MinecraftServerEvent event) {
+		eventQueue.add(event);
+	}
+	
+	public void addListener(EventListener listener) {
+		synchronized(eventListenersLock) {
+			eventListeners.add(listener);
+		}
 	}
 	
 	@Override
