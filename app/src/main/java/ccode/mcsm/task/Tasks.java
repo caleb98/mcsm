@@ -5,9 +5,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 import ccode.mcsm.MinecraftServerManager;
-import ccode.mcsm.action.MCSMAction;
+import ccode.mcsm.action.Action;
 
 public class Tasks {
 
@@ -76,9 +77,9 @@ public class Tasks {
 			for(String fullCommand : tasks.get(task)) {
 				String actionID = fullCommand.split("\s+")[0];
 				String arguments = fullCommand.substring(actionID.length()).trim();
-				MCSMAction action = MCSMAction.get(actionID);
+				Action action = Action.get(actionID);
 				if(action != null) {
-					MCSMAction.get(actionID).execute(manager, arguments);
+					Action.get(actionID).execute(manager, arguments);
 				}
 				else {
 					System.err.printf("Error in task \'%s\': listed action \'%s\' does not exist!\n", task, actionID);
@@ -88,6 +89,10 @@ public class Tasks {
 		else {
 			System.out.printf("Unable to execute task \'%s\': task not found.\n", task);
 		}
+	}
+	
+	public static Set<String> getTasks() {
+		return tasks.keySet();
 	}
 	
 }

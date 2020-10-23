@@ -6,7 +6,7 @@ import ccode.mcsm.MinecraftServerManager;
 import ccode.mcsm.MinecraftServerWatcher;
 import ccode.mcsm.mcserver.MinecraftServer;
 
-public class StartServerAction extends MCSMAction {
+public class StartServerAction extends Action {
 	
 	public static final String ID = "StartServer";
 	

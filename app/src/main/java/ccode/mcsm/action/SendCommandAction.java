@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import ccode.mcsm.MinecraftServerManager;
 
-public class SendCommandAction extends MCSMAction {
+public class SendCommandAction extends Action {
 
 	public static final String ID = "SendCommand";
 	

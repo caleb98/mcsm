@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import ccode.mcsm.MinecraftServerManager;
 
-public class StopServerAction extends MCSMAction {
+public class StopServerAction extends Action {
 
 	public static final String ID = "StopServer";
 	

@@ -3,7 +3,7 @@ package ccode.mcsm.action;
 import ccode.mcsm.MinecraftServerManager;
 import ccode.mcsm.task.Tasks;
 
-public class TaskAction extends MCSMAction {
+public class TaskAction extends Action {
 
 	public static final String ID = "Task";
 	
