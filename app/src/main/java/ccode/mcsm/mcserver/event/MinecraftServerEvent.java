@@ -15,7 +15,7 @@ public abstract class MinecraftServerEvent {
 		//Add all event producers here.
 		eventProducers.add((line)->{
 			Matcher m = PlayerJoinedEvent.MATCHER.matcher(line);
-			if(!m.find()) {
+			if(!m.matches()) {
 				return null;
 			}
 			return new PlayerJoinedEvent(m.group(1), m.group(2));
@@ -23,7 +23,7 @@ public abstract class MinecraftServerEvent {
 		
 		eventProducers.add((line)->{
 			Matcher m = PlayerLeftEvent.MATCHER.matcher(line);
-			if(!m.find()) {
+			if(!m.matches()) {
 				return null;
 			}
 			return new PlayerLeftEvent(m.group(1), m.group(2));
@@ -31,7 +31,7 @@ public abstract class MinecraftServerEvent {
 		
 		eventProducers.add((line)->{
 			Matcher m = AchievementGetEvent.MATCHER.matcher(line);
-			if(!m.find()) {
+			if(!m.matches()) {
 				return null;
 			}
 			return new AchievementGetEvent(m.group(1), m.group(2), m.group(3));
@@ -39,7 +39,7 @@ public abstract class MinecraftServerEvent {
 		
 		eventProducers.add((line)->{
 			Matcher m = ServerLoadedEvent.MATCHER.matcher(line);
-			if(!m.find()) {
+			if(!m.matches()) {
 				return null;
 			}
 			return new ServerLoadedEvent(m.group(1), m.group(2));
@@ -47,10 +47,18 @@ public abstract class MinecraftServerEvent {
 		
 		eventProducers.add((line)->{
 			Matcher m = ServerUnloadedEvent.MATCHER.matcher(line);
-			if(!m.find()) {
+			if(!m.matches()) {
 				return null;
 			}
 			return new ServerUnloadedEvent(m.group(1));
+		});
+		
+		eventProducers.add((line)->{
+			Matcher m = PlayerAuthEvent.MATHCHER.matcher(line);
+			if(!m.matches()) {
+				return null;
+			}
+			return new PlayerAuthEvent(m.group(1), m.group(2), m.group(3));
 		});
 		
 		events = Collections.unmodifiableList(eventProducers);
