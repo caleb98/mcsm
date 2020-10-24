@@ -52,6 +52,10 @@ public class MinecraftServer implements Runnable {
 		loadOps();
 	}
 	
+	public JsonArray getOps() {
+		return ops;
+	}
+	
 	public void loadOps() {
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader("ops.json"));
@@ -82,7 +86,7 @@ public class MinecraftServer implements Runnable {
 		
 		for(int i = 0; i < ops.size(); i++) {
 			
-			op = (JsonObject) ops.get(i);
+			op = ops.get(i).getAsJsonObject();
 			if(op.has("name") && op.has("level")) {
 				
 				opName = op.get("name").getAsString();
@@ -94,6 +98,10 @@ public class MinecraftServer implements Runnable {
 		}
 		
 		return 0;
+	}
+	
+	public boolean areOpsLoaded() {
+		return areOpsLoaded;
 	}
 	
 	public void loadProperties() {
