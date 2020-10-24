@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import ccode.mcsm.MinecraftServerManager;
 /**
@@ -13,6 +14,8 @@ import ccode.mcsm.MinecraftServerManager;
  * is dependant upon the action.
  */
 public abstract class Action {
+	
+	public static final Pattern ACTION_COMMAND_PATTERN = Pattern.compile("^(\\w+)(?: ([\\w ]+))?$");
 	
 	private static final Map<String, Action> actions;
 	
