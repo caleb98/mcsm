@@ -1,6 +1,7 @@
 package ccode.mcsm.action;
 
 import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.permissions.Permissions;
 import ccode.mcsm.task.Tasks;
 
 /**
@@ -11,7 +12,7 @@ public class TaskAction extends Action {
 	public static final String ID = "Task";
 	
 	TaskAction() {
-		super(ID, 4);
+		super(ID, Permissions.LEVEL_4);
 	}
 	
 	@Override

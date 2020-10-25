@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.permissions.Permissions;
 import ccode.mcsm.task.Tasks;
 
 /**
@@ -15,7 +16,7 @@ public class ListTasksAction extends Action {
 	public static final String ID = "ListTasks";
 	
 	ListTasksAction() {
-		super(ID, 4);
+		super(ID, Permissions.LEVEL_4);
 	}
 	
 	@Override

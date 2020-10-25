@@ -1,13 +1,21 @@
 package ccode.mcsm.permissions;
 
-public class Permissions {
+public enum Permissions implements Comparable<Permissions> {
 
-	public static final int SERVER_OPERATOR	= 100;
-	public static final int ALL_PERMISSIONS	= 10;
-	public static final int LEVEL_4			= 4;
-	public static final int LEVEL_3			= 3;
-	public static final int LEVEL_2			= 2;
-	public static final int LEVEL_1			= 1;
-	public static final int NO_PERMISSONS	= 0;
+	SERVER_OPERATOR(100),
+	ALL_PERMISSIONS(10),
+	LEVEL_5(5),
+	LEVEL_4(4),
+	LEVEL_3(3),
+	LEVEL_2(2),
+	LEVEL_1(1),
+	LEVEL_0(0),
+	NO_PERMISSIONS(0);
+	
+	public final int level;
+	
+	Permissions(int level) {
+		this.level = level;
+	}
 	
 }

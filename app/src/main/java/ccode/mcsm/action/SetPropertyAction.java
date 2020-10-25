@@ -3,6 +3,7 @@ package ccode.mcsm.action;
 import java.io.IOException;
 
 import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.permissions.Permissions;
 
 /**
  * An action that sets a specific property in the server.properties
@@ -13,7 +14,7 @@ public class SetPropertyAction extends Action {
 	public static final String ID = "SetProperty";
 	
 	SetPropertyAction() {
-		super(ID, 4);
+		super(ID, Permissions.LEVEL_4);
 	}
 	
 	@Override

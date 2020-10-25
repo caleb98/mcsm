@@ -10,29 +10,29 @@ public class Player {
 
 	private String name;
 	private transient String uuid;
-	private int permissionsLevel = Permissions.NO_PERMISSONS;
+	private Permissions permissions;
 	private HashSet<String> commands = new HashSet<>();
 	
-	public Player(String name, String uuid, int permissionsLevel) {
+	public Player(String name, String uuid, Permissions permissions) {
 		this.name = name;
 		this.uuid = uuid;
-		this.permissionsLevel = permissionsLevel;
+		this.permissions = permissions;
 	}
 
 	public Set<String> getOverrideCommands() {
 		return Collections.unmodifiableSet(commands);
 	}
 	
-	public void setPermissionsLevel(int level) {
-		permissionsLevel = level;
+	public void setPermissionsLevel(Permissions permissions) {
+		this.permissions = permissions;
 	}
 	
-	public int getPermissionsLevel() {
-		return permissionsLevel;
+	public Permissions getPermissionsLevel() {
+		return permissions;
 	}
 	
 	public boolean hasPermissions(Action action) {
-		if(action.permissionsLevel <= permissionsLevel) {
+		if(action.requiredPermission.level <= permissions.level) {
 			return true;
 		}
 		for(String permission : commands) {

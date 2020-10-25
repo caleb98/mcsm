@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.permissions.Permissions;
 
 /**
  * A utility action that prints each of the available actions
@@ -14,7 +15,7 @@ public class ListActionsAction extends Action {
 	public static final String ID = "ListActions";
 	
 	ListActionsAction() {
-		super(ID, 4);
+		super(ID, Permissions.LEVEL_4);
 	}
 	
 	@Override

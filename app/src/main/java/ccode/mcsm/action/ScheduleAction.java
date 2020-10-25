@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.permissions.Permissions;
 import ccode.mcsm.scheduling.Scheduler;
 import ccode.mcsm.scheduling.TimeFormatters;
 
@@ -23,7 +24,7 @@ public class ScheduleAction extends Action {
 	private static final Pattern datePattern = Pattern.compile("(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:.\\d+)?) (\\w+)(.*)");
 	
 	ScheduleAction() {
-		super(ID, 4);
+		super(ID, Permissions.LEVEL_4);
 	}
 	
 	@Override
