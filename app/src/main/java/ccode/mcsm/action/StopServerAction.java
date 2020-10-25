@@ -8,8 +8,12 @@ import ccode.mcsm.MinecraftServerManager;
  * An action that stops the minecraft server process.
  */
 public class StopServerAction extends Action {
-
+	
 	public static final String ID = "StopServer";
+	
+	StopServerAction() {
+		super(ID, 4);
+	}
 	
 	@Override
 	public int execute(MinecraftServerManager manager, String args) {

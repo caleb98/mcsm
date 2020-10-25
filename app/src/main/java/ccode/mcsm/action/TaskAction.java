@@ -10,6 +10,10 @@ public class TaskAction extends Action {
 
 	public static final String ID = "Task";
 	
+	TaskAction() {
+		super(ID, 4);
+	}
+	
 	@Override
 	public int execute(MinecraftServerManager manager, String task) {
 		Tasks.executeTask(task, manager);

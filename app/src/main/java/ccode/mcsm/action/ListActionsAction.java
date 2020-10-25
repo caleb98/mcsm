@@ -13,6 +13,10 @@ public class ListActionsAction extends Action {
 	
 	public static final String ID = "ListActions";
 	
+	ListActionsAction() {
+		super(ID, 4);
+	}
+	
 	@Override
 	public int execute(MinecraftServerManager manager, String args) {
 		ArrayList<String> actions = new ArrayList<>(Action.getActions());

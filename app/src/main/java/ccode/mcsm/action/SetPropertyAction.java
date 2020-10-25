@@ -12,6 +12,10 @@ public class SetPropertyAction extends Action {
 
 	public static final String ID = "SetProperty";
 	
+	SetPropertyAction() {
+		super(ID, 4);
+	}
+	
 	@Override
 	public int execute(MinecraftServerManager manager, String args) {
 		if(manager.getServer().arePropsLoaded()) {

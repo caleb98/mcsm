@@ -31,6 +31,7 @@ import ccode.mcsm.net.message.ConnectMessage;
 import ccode.mcsm.net.message.ErrorMessage;
 import ccode.mcsm.net.message.InfoMessage;
 import ccode.mcsm.net.message.ServerConnectSuccess;
+import ccode.mcsm.permissions.Permissions;
 import ccode.mcsm.permissions.Player;
 
 public class MinecraftServerManager extends Listener {
@@ -129,7 +130,7 @@ public class MinecraftServerManager extends Listener {
 			if(event instanceof PlayerAuthEvent) {
 				PlayerAuthEvent auth = (PlayerAuthEvent) event;
 				if(!players.containsKey(auth.uuid)) {
-					players.put(auth.uuid, new Player(auth.player, auth.uuid));
+					players.put(auth.uuid, new Player(auth.player, auth.uuid, Permissions.NO_PERMISSONS));
 				}
 			}
 			return false;
@@ -183,7 +184,7 @@ public class MinecraftServerManager extends Listener {
 				
 				//If player isn't already registered, add them now
 				if(!players.containsKey(uuid)) {
-					Player p = new Player(user.get("name").getAsString(), uuid);
+					Player p = new Player(user.get("name").getAsString(), uuid, Permissions.NO_PERMISSONS);
 					players.put(uuid, p);
 				}
 			}

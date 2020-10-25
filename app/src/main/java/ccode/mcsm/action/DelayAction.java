@@ -19,6 +19,10 @@ public class DelayAction extends Action {
 	
 	private static final Pattern delayPattern = Pattern.compile("(?:(\\d+)h)?(?:(\\d+)m)?(?:(\\d+)s)");
 	
+	DelayAction() {
+		super(ID, 4);
+	}
+	
 	@Override
 	public int execute(MinecraftServerManager manager, String delay) {
 		Matcher m = delayPattern.matcher(delay);

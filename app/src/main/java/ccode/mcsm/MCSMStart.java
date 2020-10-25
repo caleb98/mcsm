@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.esotericsoftware.kryonet.Server;
 
+import ccode.mcsm.action.Action;
 import ccode.mcsm.net.KryoCreator;
 import ccode.mcsm.task.Tasks;
 
@@ -14,6 +15,9 @@ public class MCSMStart {
 			System.out.println("Usage: mcremote.jar <server jarfile path>");
 			System.exit(0);
 		}
+		
+		//Load the actions
+		Action.init();
 		
 		//Load the tasks from the user file
 		try {

@@ -13,6 +13,10 @@ public class WaitForAction extends Action {
 
 	public static final String ID = "WaitFor";
 	
+	WaitForAction() {
+		super(ID, 4);
+	}
+	
 	@Override
 	public int execute(MinecraftServerManager manager, String event) {
 		if(event.length() == 0) {
