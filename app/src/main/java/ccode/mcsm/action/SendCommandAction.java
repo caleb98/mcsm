@@ -3,6 +3,7 @@ package ccode.mcsm.action;
 import java.io.IOException;
 
 import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.permissions.Permissions;
 
 /**
  * An action that sends a specified server command directly
@@ -13,7 +14,7 @@ public class SendCommandAction extends Action {
 	public static final String ID = "SendCommand";
 	
 	SendCommandAction() {
-		super(ID, 5);
+		super(ID, Permissions.LEVEL_5);
 	}
 	
 	@Override

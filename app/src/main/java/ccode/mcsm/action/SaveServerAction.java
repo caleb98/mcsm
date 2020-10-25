@@ -3,6 +3,7 @@ package ccode.mcsm.action;
 import java.io.IOException;
 
 import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.permissions.Permissions;
 
 /**
  * An action that saves the server via the in game command save-all.
@@ -12,7 +13,7 @@ public class SaveServerAction extends Action {
 	public static final String ID = "SaveServer";
 	
 	SaveServerAction() {
-		super(ID, 4);
+		super(ID, Permissions.LEVEL_4);
 	}
 	
 	@Override

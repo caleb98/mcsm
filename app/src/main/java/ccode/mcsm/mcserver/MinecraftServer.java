@@ -2,7 +2,6 @@ package ccode.mcsm.mcserver;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,17 +13,13 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonObject;
-
 import ccode.mcsm.MinecraftServerManager;
 import ccode.mcsm.action.Action;
 import ccode.mcsm.mcserver.event.EventProducer;
 import ccode.mcsm.mcserver.event.MinecraftServerEvent;
 import ccode.mcsm.mcserver.event.ServerStartedEvent;
 import ccode.mcsm.mcserver.event.ServerStoppedEvent;
+import ccode.mcsm.permissions.Player;
 import ccode.mcsm.scheduling.TimeFormatters;
 
 public class MinecraftServer implements Runnable {
@@ -36,8 +31,6 @@ public class MinecraftServer implements Runnable {
 
 	private Properties properties = new Properties();
 	private boolean arePropsLoaded = false;
-	private JsonArray ops;
-	private boolean areOpsLoaded = false;
 	
 	private Process serverProcess;
 	private BufferedReader stdout;
@@ -49,59 +42,6 @@ public class MinecraftServer implements Runnable {
 		arguments = args;
 		
 		loadProperties();
-		loadOps();
-	}
-	
-	public JsonArray getOps() {
-		return ops;
-	}
-	
-	public void loadOps() {
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader("ops.json"));
-			Gson gson = new Gson();
-			ops = gson.fromJson(reader, JsonArray.class);
-			areOpsLoaded = true;
-		} catch (JsonIOException e) {
-			System.err.println("Error loading ops file.");
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			System.err.println("Ops file not found.");
-		}
-	}
-	
-	/**
-	 * Returns the op level of a player as specified in the server's 
-	 * <code>ops.json</code> file. If the ops file is not loaded, then
-	 * this method will return -1 for all players.
-	 * @param playerName
-	 * @return player op level
-	 */
-	public int getOpLevel(String playerName) {
-		if(!areOpsLoaded) 
-			return -1;
-		
-		JsonObject op;
-		String opName;
-		
-		for(int i = 0; i < ops.size(); i++) {
-			
-			op = ops.get(i).getAsJsonObject();
-			if(op.has("name") && op.has("level")) {
-				
-				opName = op.get("name").getAsString();
-				if(playerName.equals(opName))
-					return op.get("level").getAsInt();
-				
-			}
-			
-		}
-		
-		return 0;
-	}
-	
-	public boolean areOpsLoaded() {
-		return areOpsLoaded;
 	}
 	
 	public void loadProperties() {
@@ -177,8 +117,7 @@ public class MinecraftServer implements Runnable {
 				while(stdout.ready() && (next = stdout.readLine()) != null) {
 					System.out.println("[MinecraftServer]: " + next);
 					checkLineForEvent(next);
-					if(areOpsLoaded)
-						checkLineForCommand(next);
+					checkLineForCommand(next);
 				}
 				
 				while(stderr.ready() && (next = stderr.readLine()) != null) {
@@ -212,38 +151,42 @@ public class MinecraftServer implements Runnable {
 		if(!m.matches())
 			return;
 		
-		String player = m.group(1);
+		String playerName = m.group(1);
 		String command = m.group(2).trim();
 		
-		//For now, only run if the player has FULL server op permission
-		if(getOpLevel(player) == 4) {
-			m = Action.ACTION_COMMAND_PATTERN.matcher(command);
-			if(!m.matches()) {
-				try {
-					sendCommand(String.format("tell %s \'%s\' is not a valid mcsm action string", player, command));
-				} catch (IOException e) {}
-				return;
-			}
-			
-			String action = m.group(1);
-			String args = m.group(2);
-			if(args == null) args = "";
-			
-			Action a = Action.get(action);
-			if(a == null) {
-				try {
-					sendCommand(String.format("tell %s \'%s\' is not a valid mcsm action", player, action));
-				} catch (IOException e) {}
-				return;
-			}
-			
-			Action.get(action).execute(manager, args);
-		}
-		else {
+		Player player = manager.getPlayerFromName(playerName);
+		
+		//Check if the given string matches a command
+		m = Action.ACTION_COMMAND_PATTERN.matcher(command);
+		if(!m.matches()) {
 			try {
-				sendCommand(String.format("tell %s you do not have the permissions to run mcsm commands", player));
+				sendCommand(String.format("tell %s \'%s\' is not a valid mcsm action string", player, command));
 			} catch (IOException e) {}
+			return;
 		}
+		
+		String actionName = m.group(1);
+		String args = m.group(2);
+		if(args == null) args = "";
+		
+		//Make sure that the provided action exists
+		Action action = Action.get(actionName);
+		if(action == null) {
+			try {
+				sendCommand(String.format("tell %s \'%s\' is not a valid mcsm action", player, actionName));
+			} catch (IOException e) {}
+			return;
+		}
+		
+		//Make sure that the user has the permission to execute this action
+		if(!player.hasPermissions(action)) {
+			try {
+				sendCommand(String.format("tell %s you don't have permission for that", playerName));
+			} catch (IOException e) {}
+			return;
+		}
+		
+		action.execute(manager, args);
 	}
 	
 	/**

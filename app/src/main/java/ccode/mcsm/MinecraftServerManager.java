@@ -130,7 +130,7 @@ public class MinecraftServerManager extends Listener {
 			if(event instanceof PlayerAuthEvent) {
 				PlayerAuthEvent auth = (PlayerAuthEvent) event;
 				if(!players.containsKey(auth.uuid)) {
-					players.put(auth.uuid, new Player(auth.player, auth.uuid, Permissions.NO_PERMISSONS));
+					players.put(auth.uuid, new Player(auth.player, auth.uuid, Permissions.NO_PERMISSIONS));
 				}
 			}
 			return false;
@@ -184,7 +184,7 @@ public class MinecraftServerManager extends Listener {
 				
 				//If player isn't already registered, add them now
 				if(!players.containsKey(uuid)) {
-					Player p = new Player(user.get("name").getAsString(), uuid, Permissions.NO_PERMISSONS);
+					Player p = new Player(user.get("name").getAsString(), uuid, Permissions.NO_PERMISSIONS);
 					players.put(uuid, p);
 				}
 			}
@@ -195,6 +195,20 @@ public class MinecraftServerManager extends Listener {
 			System.err.println("Error parsing usercache json.");
 			jse.printStackTrace();
 		}
+	}
+	
+	public Player getPlayerFromName(String playerName) {
+		for(String uuid : players.keySet()) {
+			Player player = players.get(uuid);
+			if(player.getName().equals(playerName)) {
+				return player;
+			}
+		}
+		return null;
+	}
+	
+	public Player getPlayerFromUUID(String uuid) {
+		return players.get(uuid);
 	}
 	
 	public void addEvent(MinecraftServerEvent event) {

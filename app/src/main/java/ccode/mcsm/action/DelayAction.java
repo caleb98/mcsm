@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import ccode.mcsm.Block;
 import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.permissions.Permissions;
 import ccode.mcsm.scheduling.Scheduler;
 
 /**
@@ -20,7 +21,7 @@ public class DelayAction extends Action {
 	private static final Pattern delayPattern = Pattern.compile("(?:(\\d+)h)?(?:(\\d+)m)?(?:(\\d+)s)");
 	
 	DelayAction() {
-		super(ID, 4);
+		super(ID, Permissions.LEVEL_4);
 	}
 	
 	@Override

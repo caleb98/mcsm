@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.permissions.Permissions;
 /**
  * Represents a single action that the server manager may execute.
  * All actions are represented with the format <code>&ltActionID&gt 
@@ -49,11 +50,11 @@ public abstract class Action {
 	}
 	
 	public final String id;
-	public final int permissionsLevel;
+	public final Permissions requiredPermission;
 	
-	public Action(String id, int permissionLevel) {
+	public Action(String id, Permissions permissionLevel) {
 		this.id = id;
-		this.permissionsLevel = permissionLevel;
+		this.requiredPermission = permissionLevel;
 	}
 	
 	/**

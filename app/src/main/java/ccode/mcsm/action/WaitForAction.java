@@ -2,6 +2,7 @@ package ccode.mcsm.action;
 
 import ccode.mcsm.Block;
 import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.permissions.Permissions;
 
 /**
  * An action that blocks the execution of a Task list until a specified
@@ -14,7 +15,7 @@ public class WaitForAction extends Action {
 	public static final String ID = "WaitFor";
 	
 	WaitForAction() {
-		super(ID, 4);
+		super(ID, Permissions.LEVEL_4);
 	}
 	
 	@Override

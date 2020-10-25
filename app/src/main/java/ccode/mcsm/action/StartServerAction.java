@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import ccode.mcsm.MinecraftServerManager;
 import ccode.mcsm.mcserver.MinecraftServer;
+import ccode.mcsm.permissions.Permissions;
 
 /**
  * An action that starts the minecraft server process.
@@ -13,7 +14,7 @@ public class StartServerAction extends Action {
 	public static final String ID = "StartServer";
 	
 	StartServerAction() {
-		super(ID, 4);
+		super(ID, Permissions.LEVEL_4);
 	}
 	
 	@Override
