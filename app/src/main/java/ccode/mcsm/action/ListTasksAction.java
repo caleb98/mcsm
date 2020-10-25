@@ -14,6 +14,10 @@ public class ListTasksAction extends Action {
 
 	public static final String ID = "ListTasks";
 	
+	ListTasksAction() {
+		super(ID, 4);
+	}
+	
 	@Override
 	public int execute(MinecraftServerManager manager, String args) {
 		ArrayList<String> tasks = new ArrayList<>(Tasks.getTasks());

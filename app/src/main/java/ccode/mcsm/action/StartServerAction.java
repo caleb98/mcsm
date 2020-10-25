@@ -12,6 +12,10 @@ public class StartServerAction extends Action {
 	
 	public static final String ID = "StartServer";
 	
+	StartServerAction() {
+		super(ID, 4);
+	}
+	
 	@Override
 	public int execute(MinecraftServerManager manager, String args) {
 		MinecraftServer server = manager.getServer();

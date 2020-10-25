@@ -1,6 +1,5 @@
 package ccode.mcsm.action;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -16,26 +15,45 @@ import ccode.mcsm.MinecraftServerManager;
 public abstract class Action {
 	
 	public static final Pattern ACTION_COMMAND_PATTERN = Pattern.compile("^(\\w+)(?: ([\\w ]+))?$");
+	private static final Map<String, Action> actions = new HashMap<>();
+	private static boolean areActionsInitialized = false;
 	
-	private static final Map<String, Action> actions;
-	
-	static {
-		HashMap<String, Action> map = new HashMap<>();
+	public static void init() {
 		
 		//Add all actions here
-		map.put(StartServerAction.ID, new StartServerAction());
-		map.put(SaveServerAction.ID, new SaveServerAction());
-		map.put(StopServerAction.ID, new StopServerAction());
-		map.put(SendCommandAction.ID, new SendCommandAction());
-		map.put(TaskAction.ID, new TaskAction());
-		map.put(ListActionsAction.ID, new ListActionsAction());
-		map.put(ListTasksAction.ID, new ListTasksAction());
-		map.put(SetPropertyAction.ID, new SetPropertyAction());
-		map.put(WaitForAction.ID, new WaitForAction());
-		map.put(ScheduleAction.ID, new ScheduleAction());
-		map.put(DelayAction.ID, new DelayAction());
+		register(new StartServerAction());
+		register(new SaveServerAction());
+		register(new StopServerAction());
+		register(new SendCommandAction());
+		register(new TaskAction());
+		register(new ListActionsAction());
+		register(new ListTasksAction());
+		register(new SetPropertyAction());
+		register(new WaitForAction());
+		register(new ScheduleAction());
+		register(new DelayAction());
+	
+		areActionsInitialized = true;
 		
-		actions = Collections.unmodifiableMap(map);
+	}
+	
+	private static void register(Action action) {
+		if(actions.containsKey(action.id)) {
+			System.err.printf(
+					"Error: attempted to register action %s, which was already "
+					+ "registered. Check for action id conflicts.\n", action.id);
+			return;
+		}
+		actions.put(action.id, action);
+		System.out.printf("Registered action: \t%s\n", action.id);
+	}
+	
+	public final String id;
+	public final int permissionsLevel;
+	
+	public Action(String id, int permissionLevel) {
+		this.id = id;
+		this.permissionsLevel = permissionLevel;
 	}
 	
 	/**
@@ -44,6 +62,9 @@ public abstract class Action {
 	 * @return a set containing all action ids
 	 */
 	public static Set<String> getActions() {
+		if(!areActionsInitialized) {
+			throw new IllegalStateException("Actions not yet initialized");
+		}
 		return actions.keySet();
 	}
 	
@@ -53,6 +74,9 @@ public abstract class Action {
 	 * @return action; null if that action isn't registered/doesn't exist
 	 */
 	public static Action get(String actionID) {
+		if(!areActionsInitialized) {
+			throw new IllegalStateException("Actions not yet initialized");
+		}
 		return actions.get(actionID);
 	}
 	

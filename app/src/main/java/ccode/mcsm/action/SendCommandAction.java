@@ -12,6 +12,10 @@ public class SendCommandAction extends Action {
 
 	public static final String ID = "SendCommand";
 	
+	SendCommandAction() {
+		super(ID, 5);
+	}
+	
 	@Override
 	public int execute(MinecraftServerManager manager, String args) {
 		

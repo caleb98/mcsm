@@ -11,6 +11,10 @@ public class SaveServerAction extends Action {
 
 	public static final String ID = "SaveServer";
 	
+	SaveServerAction() {
+		super(ID, 4);
+	}
+	
 	@Override
 	public int execute(MinecraftServerManager manager, String args) {
 		
