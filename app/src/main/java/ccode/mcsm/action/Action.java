@@ -33,6 +33,7 @@ public abstract class Action {
 		register(new WaitForAction());
 		register(new ScheduleAction());
 		register(new DelayAction());
+		register(new SetPermissionLevelAction());
 	
 		areActionsInitialized = true;
 		

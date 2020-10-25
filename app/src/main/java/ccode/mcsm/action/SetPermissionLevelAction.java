@@ -26,7 +26,20 @@ public class SetPermissionLevelAction extends Action {
 			return -1;
 		}
 		
-		return -1;
+		Permissions newPermissions;
+		try {
+			newPermissions = Permissions.valueOf(split[1]);
+		} catch (IllegalArgumentException e) {
+			System.err.println("Error: invalid permissions string");
+			return -1;
+		}
+		
+		p.setPermissionsLevel(newPermissions);
+		
+		//TODO: this needs a lot more logic regarding who can change who's permissions
+		//if(this change is allowed) { ... }
+		
+		return 0;
 	}
 	
 }
