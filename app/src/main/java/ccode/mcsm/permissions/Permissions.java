@@ -3,8 +3,7 @@ package ccode.mcsm.permissions;
 public enum Permissions implements Comparable<Permissions> {
 
 	SERVER_OPERATOR(100),
-	ALL_PERMISSIONS(10),
-	LEVEL_5(5),
+	SERVER_MODERATOR(10),
 	LEVEL_4(4),
 	LEVEL_3(3),
 	LEVEL_2(2),
