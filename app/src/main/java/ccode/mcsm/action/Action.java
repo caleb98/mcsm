@@ -38,6 +38,7 @@ public abstract class Action {
 		register(new ScheduleAction());
 		register(new DelayAction());
 		register(new SetPermissionLevelAction());
+		register(new GetPermissionLevelAction());
 	
 		areActionsInitialized = true;
 		
