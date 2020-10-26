@@ -16,7 +16,7 @@ public class ListActionsAction extends Action {
 	public static final String ID = "ListActions";
 	
 	ListActionsAction() {
-		super(ID, Permissions.LEVEL_4);
+		super(ID, Permissions.LEVEL_0);
 	}
 	
 	@Override
@@ -24,10 +24,12 @@ public class ListActionsAction extends Action {
 		ArrayList<String> actions = new ArrayList<>(Action.getActions());
 		Collections.sort(actions);
 		
-		System.out.println("Available actions:");
+		sendMessage(manager, executor, "Available actions:");
 		for(String action : actions) {
-			System.out.printf("\t%s\n", action);
+			if(executor.hasPermissions(action))
+				sendMessage(manager, executor, " > %s", action);
 		}
+		
 		return 0;
 	}
 	

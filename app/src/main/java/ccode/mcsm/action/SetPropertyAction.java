@@ -15,7 +15,7 @@ public class SetPropertyAction extends Action {
 	public static final String ID = "SetProperty";
 	
 	SetPropertyAction() {
-		super(ID, Permissions.LEVEL_4);
+		super(ID, Permissions.SERVER_OPERATOR);
 	}
 	
 	@Override
@@ -24,7 +24,7 @@ public class SetPropertyAction extends Action {
 			
 			String[] split = args.split("\\s+");
 			if(split.length < 2) {
-				System.err.println("Invalid arguments for SetProperty action: " + args);
+				sendMessage(manager, executor, "Invalid arguments for SetProperty action: %s", args);
 				return -1;
 			}
 			
@@ -34,7 +34,7 @@ public class SetPropertyAction extends Action {
 			try {
 				manager.getServer().setProperty(prop, value);
 			} catch (IOException e) {
-				System.err.printf("Error writing new property to file: %s\n", e.getMessage());
+				sendMessage(manager, executor, "Error writing new property to file: %s", e.getMessage());
 				return -1;
 			}
 			

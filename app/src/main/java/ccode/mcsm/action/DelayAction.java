@@ -30,7 +30,7 @@ public class DelayAction extends Action {
 		Matcher m = delayPattern.matcher(delay);
 		
 		if(!m.find()) {
-			System.err.println("Error in Delay: provided arguments don't match expected input.");
+			sendMessage(manager, executor, "Error in Delay: provided arguments don't match expected input.");
 			return -1;
 		}
 		

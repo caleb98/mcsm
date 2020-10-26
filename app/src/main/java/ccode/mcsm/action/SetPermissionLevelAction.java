@@ -9,20 +9,20 @@ public class SetPermissionLevelAction extends Action {
 	public static final String ID = "SetPermissionLevel";
 	
 	SetPermissionLevelAction() {
-		super(ID, Permissions.SERVER_OPERATOR);
+		super(ID, Permissions.SERVER_MODERATOR);
 	}
 
 	@Override
 	public int execute(MinecraftServerManager manager, Player executor, String args) {
 		String[] split = args.split("\s+");
 		if(split.length != 2) {
-			System.err.println("Error: invalid number of arguments for SetPermissionsLevel");
+			sendMessage(manager, executor, "Error: invalid number of arguments for SetPermissionsLevel");
 			return -1;
 		}
 		
-		Player p = manager.getPlayerFromName(split[0]);
-		if(p == null) {
-			System.err.println("Error: invalid player name");
+		Player changing = manager.getPlayerFromName(split[0]);
+		if(changing == null) {
+			sendMessage(manager, executor, "Error: invalid player name");
 			return -1;
 		}
 		
@@ -30,14 +30,26 @@ public class SetPermissionLevelAction extends Action {
 		try {
 			newPermissions = Permissions.valueOf(split[1]);
 		} catch (IllegalArgumentException e) {
-			System.err.println("Error: invalid permissions string");
+			sendMessage(manager, executor, "Error: invalid permissions string");
 			return -1;
 		}
 		
-		p.setPermissionsLevel(newPermissions);
+		//TODO: permission rank, where people who have had a rank longer can't change
+		if(executor.getPermissionsLevel() <= changing.getPermissionsLevel()) {
+			sendMessage(manager, executor, "Error: that player's current permissions level is too high for you to change");
+			return -1;
+		}
+		if(executor.getPermissionsLevel() <= newPermissions.level) {
+			sendMessage(manager, executor, "Error: you cannot set permissions level equal or higher than your current permission level");
+			return -1;
+		}
+		if(newPermissions == Permissions.MCSM_EXECUTOR) {
+			sendMessage(manager, executor, "Error: you cannot set permission level to MCSM executor. "
+					+ "This permissions level is reserved for the MCSM process itself.");
+			return -1;
+		}
 		
-		//TODO: this needs a lot more logic regarding who can change who's permissions
-		//if(this change is allowed) { ... }
+		changing.setPermissionsLevel(newPermissions);
 		
 		return 0;
 	}

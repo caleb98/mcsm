@@ -24,7 +24,7 @@ import ccode.mcsm.scheduling.TimeFormatters;
 
 public class MinecraftServer implements Runnable {
 	
-	private static final Pattern MSCM_COMMAND_PATTERN = Pattern.compile("\\[\\d{2}:\\d{2}:\\d{2}\\] \\[Server thread\\/INFO]: <(\\w+)> mcsm ([\\w ]+)");
+	private static final Pattern MSCM_COMMAND_PATTERN = Pattern.compile("\\[\\d{2}:\\d{2}:\\d{2}\\] \\[Server thread\\/INFO\\]: <(\\w+)> mcsm (.+)");
 	
 	private MinecraftServerManager manager;
 	private String[] arguments;
@@ -160,20 +160,20 @@ public class MinecraftServer implements Runnable {
 		m = Action.ACTION_COMMAND_PATTERN.matcher(command);
 		if(!m.matches()) {
 			try {
-				sendCommand(String.format("tell %s \'%s\' is not a valid mcsm action string", player, command));
+				sendCommand(String.format("tell %s \'%s\' is not a valid mcsm action string", playerName, command));
 			} catch (IOException e) {}
 			return;
 		}
 		
-		String actionName = m.group(1);
+		String actionID = m.group(1);
 		String args = m.group(2);
 		if(args == null) args = "";
 		
 		//Make sure that the provided action exists
-		Action action = Action.get(actionName);
+		Action action = Action.get(actionID);
 		if(action == null) {
 			try {
-				sendCommand(String.format("tell %s \'%s\' is not a valid mcsm action", player, actionName));
+				sendCommand(String.format("tell %s \'%s\' is not a valid mcsm action", playerName, actionID));
 			} catch (IOException e) {}
 			return;
 		}
@@ -186,7 +186,7 @@ public class MinecraftServer implements Runnable {
 			return;
 		}
 		
-		action.execute(manager, player, args);
+		Action.runAsync(actionID, manager, player, args);
 	}
 	
 	/**

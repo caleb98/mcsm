@@ -33,7 +33,7 @@ public class ScheduleAction extends Action {
 		Matcher m = datePattern.matcher(args);
 		
 		if(!m.find()) {
-			System.err.println("Error in Schedule: provided arguments don't match expected input.");
+			sendMessage(manager, executor, "Error in Schedule: provided arguments don't match expected input.");
 			return -1;
 		}
 		
@@ -42,7 +42,7 @@ public class ScheduleAction extends Action {
 		String nextArgs = m.group(3).trim();
 		
 		if(Action.get(action) == null) {
-			System.err.println("Error in Schedule: provided action does not exist.");
+			sendMessage(manager, executor, "Error in Schedule: provided action does not exist.");
 			return -1;
 		}
 		
@@ -50,13 +50,13 @@ public class ScheduleAction extends Action {
 		try {
 			scheduleAt = TimeFormatters.DATE_FORMATTER.parse(date, LocalDateTime::from);
 		} catch (DateTimeParseException e) {
-			System.err.printf("Error parsing scheduling date: %s\n", e.getMessage());
+			sendMessage(manager, executor, "Error parsing scheduling date: %s\n", e.getMessage());
 			return -1;
 		}
 		long delay = ChronoUnit.SECONDS.between(LocalDateTime.now(), scheduleAt);
 		
 		if(delay < 0) {
-			System.out.println("WARNING: Time for scheduled action has already passed. It will not be executed.");
+			sendMessage(manager, executor, "WARNING: Time for scheduled action has already passed. It will not be executed.");
 			return 0;
 		}
 		

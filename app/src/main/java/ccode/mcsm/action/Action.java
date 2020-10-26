@@ -1,11 +1,13 @@
 package ccode.mcsm.action;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.mcserver.MinecraftServer;
 import ccode.mcsm.permissions.Permissions;
 import ccode.mcsm.permissions.Player;
 /**
@@ -16,9 +18,10 @@ import ccode.mcsm.permissions.Player;
  */
 public abstract class Action {
 	
-	public static final Pattern ACTION_COMMAND_PATTERN = Pattern.compile("^(\\w+)(?: ([\\w ]+))?$");
+	public static final Pattern ACTION_COMMAND_PATTERN = Pattern.compile("^(\\w+)(?: (.+))?$");
 	private static final Map<String, Action> actions = new HashMap<>();
 	private static boolean areActionsInitialized = false;
+	private static int asyncActionCount = 0;
 	
 	public static void init() {
 		
@@ -84,6 +87,33 @@ public abstract class Action {
 	}
 	
 	/**
+	 * Runs a given task asynchronously. This method <b>DOES NOT</b>
+	 * check the executor's permissions, so that check must be done manually beforehand!
+	 * @param actionID id of task to run
+	 * @param manager 
+	 * @param executor the player who executed the action
+	 * @param args arguments for the action
+	 */
+	public static void runAsync(String actionID, MinecraftServerManager manager, Player executor, String args) {
+		final Action action = actions.get(actionID);
+		if(action != null) {
+			//Tasks run asynchronously anyway, so just run the task
+			//and let it handle the ansync part by itself.
+			if(actionID.equals(TaskAction.ID)) {
+				action.execute(manager, executor, args);
+			}
+			//Not a task action, so make the thread and run
+			else {
+				Thread actionThread = new Thread(()->{
+					action.execute(manager, executor, args);
+				}, "AsyncAction-" + asyncActionCount++ + "-" + actionID);
+				actionThread.setDaemon(true);
+				actionThread.start();
+			}
+		}
+	}
+	
+	/**
 	 * Runs this action.
 	 * @param manager the manager that should execute the action
 	 * @param args the string of arguments for this action to run
@@ -91,13 +121,22 @@ public abstract class Action {
 	 */
 	public abstract int execute(MinecraftServerManager manager, Player executor, String args);
 	
-	/**
-	 * Runs this action. Uses an empty string as the arguments.
-	 * @param manager the manager that should execute the action
-	 * @return 0 for success; non-zero value for error
-	 */
-	public final int execute(MinecraftServerManager manager, Player executor) {
-		return execute(manager, executor, "");
+	public static void sendMessage(MinecraftServerManager manager, Player to, String message) {
+		if(to == MinecraftServerManager.MCSM_EXECUTOR) {
+			System.out.println(message);
+		}
+		else {
+			MinecraftServer server = manager.getServer();
+			try {
+				server.sendCommand(String.format("tell %s %s", to.getName(), message));
+			} catch (IOException e) {
+				System.err.println("Error sending message to " + to.getName());
+			}
+		}
+	}
+	
+	public static void sendMessage(MinecraftServerManager manager, Player to, String format, Object... args) {
+		sendMessage(manager, to, String.format(format, args));
 	}
 	
 }

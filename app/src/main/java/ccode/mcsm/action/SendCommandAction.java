@@ -23,14 +23,14 @@ public class SendCommandAction extends Action {
 		
 		//Make sure the server is running
 		if(!manager.getServer().isRunning()) {
-			System.err.println("Error in SendCommand: server not running");
+			sendMessage(manager, executor, "Error in SendCommand: server not running");
 			return -1;
 		}
 		
 		try {
 			manager.getServer().sendCommand(args);
 		} catch (IOException e) {
-			System.err.printf("Error sending command \'%s\' to server: %s\n", args, e.getMessage());
+			sendMessage(manager, executor, "Error sending command \'%s\' to server: %s", args, e.getMessage());
 		}
 		
 		return 0;

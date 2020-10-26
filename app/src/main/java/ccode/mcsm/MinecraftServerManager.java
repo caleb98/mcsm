@@ -38,7 +38,7 @@ public class MinecraftServerManager extends Listener {
 	
 	private static final String PLAYERS_FILE = "mcsm_players.json";
 	
-	private static final Player MCSM_EXECUTOR = new Player("MCSM-EXECUTOR", UUID.randomUUID().toString(), Permissions.MCSM_EXECUTOR);
+	public static final Player MCSM_EXECUTOR = new Player("MCSM-EXECUTOR", UUID.randomUUID().toString(), Permissions.MCSM_EXECUTOR);
 
 	private MinecraftServer server;
 	private LinkedList<MinecraftServerEvent> eventQueue = new LinkedList<>();
@@ -74,7 +74,7 @@ public class MinecraftServerManager extends Listener {
 				boolean handled = false;
 				for(String action : Action.getActions()) {
 					if(command.equals(action)) {
-						Action.get(action).execute(this, MCSM_EXECUTOR, args);
+						Action.runAsync(action, this, MCSM_EXECUTOR, args);
 						handled = true;
 						break;
 					}
