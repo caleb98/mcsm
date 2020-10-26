@@ -27,8 +27,18 @@ public class Player {
 		this.permissions = permissions;
 	}
 	
-	public Permissions getPermissionsLevel() {
+	public Permissions getPermissions() {
 		return permissions;
+	}
+	
+	public int getPermissionsLevel() {
+		return permissions.level;
+	}
+	
+	public boolean hasPermissions(String actionID) {
+		Action action = Action.get(actionID);
+		if(action == null) return false;
+		return hasPermissions(action);
 	}
 	
 	public boolean hasPermissions(Action action) {

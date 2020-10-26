@@ -24,7 +24,7 @@ public class StartServerAction extends Action {
 		
 		//Make sure that the server isn't already running
 		if(server.isRunning()) {
-			System.out.println("Unable to start server: server already started");
+			sendMessage(manager, executor, "Unable to start server: server already started");
 			return 0;
 		}
 		
@@ -32,7 +32,7 @@ public class StartServerAction extends Action {
 		try {
 			server.start();
 		} catch (IOException e) {
-			System.err.printf("Unable to start MinecraftServer process: %s\n", e.getMessage());
+			sendMessage(manager, executor, "Unable to start MinecraftServer process: %s", e.getMessage());
 			return -1;
 		}
 		

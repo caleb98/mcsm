@@ -24,7 +24,7 @@ public class ListTasksAction extends Action {
 	public int execute(MinecraftServerManager manager, Player executor, String args) {
 		ArrayList<String> tasks = new ArrayList<>(Tasks.getTasks());
 		Collections.sort(tasks);
-		
+		//TODO: task permission levels
 		System.out.println("Available tasks: ");
 		for(String task : tasks) {
 			System.out.printf("\t%s\n", task);

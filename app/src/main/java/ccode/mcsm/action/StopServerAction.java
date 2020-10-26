@@ -22,14 +22,14 @@ public class StopServerAction extends Action {
 		
 		//Make sure the server is running
 		if(!manager.getServer().isRunning()) {
-			System.out.println("unable to stop server: server process not active");
+			sendMessage(manager, executor, "unable to stop server: server process not active");
 			return 0;
 		}
 		
 		try {
 			manager.getServer().stop();
 		} catch (IOException e) {
-			System.err.printf("Error stopping server: %s\n", e.getMessage());
+			sendMessage(manager, executor, "Error stopping server: %s", e.getMessage());
 			return -1;
 		}
 		

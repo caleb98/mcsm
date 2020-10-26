@@ -22,7 +22,7 @@ public class WaitForAction extends Action {
 	@Override
 	public int execute(MinecraftServerManager manager, Player executor, String event) {
 		if(event.length() == 0) {
-			System.err.println("Error in WaitFor: invalid arguments provided.");
+			sendMessage(manager, executor, "Error in WaitFor: invalid arguments provided.");
 			return -1;
 		}
 		

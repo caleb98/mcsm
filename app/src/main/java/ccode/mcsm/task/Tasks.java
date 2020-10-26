@@ -84,12 +84,12 @@ public class Tasks {
 					if(action != null) {
 						int result = Action.get(actionID).execute(manager, executor, arguments);
 						if(result < 0) {
-							System.out.printf("Action %s failed (%d); task %s stopping.\n", actionID, result, task);
+							Action.sendMessage(manager, executor, "Action %s failed (%d); task %s stopping.", actionID, result, task);
 							break;
 						}
 					}
 					else {
-						System.err.printf("Error in task \'%s\': listed action \'%s\' does not exist!\n", task, actionID);
+						Action.sendMessage(manager, executor, "Error in task \'%s\': listed action \'%s\' does not exist!\n", task, actionID);
 					}
 				}
 			}, "Task-" + taskCount++ + "-" + task);
@@ -97,7 +97,7 @@ public class Tasks {
 			taskThread.start();
 		}
 		else {
-			System.out.printf("Unable to execute task \'%s\': task not found.\n", task);
+			Action.sendMessage(manager, executor, "Unable to execute task \'%s\': task not found.\n", task);
 		}
 	}
 	
