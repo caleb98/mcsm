@@ -7,7 +7,7 @@ import java.util.Set;
 import ccode.mcsm.action.Action;
 
 public class Player {
-
+	
 	private String name;
 	private transient String uuid;
 	private Permissions permissions;

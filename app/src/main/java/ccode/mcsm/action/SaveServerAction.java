@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import ccode.mcsm.MinecraftServerManager;
 import ccode.mcsm.permissions.Permissions;
+import ccode.mcsm.permissions.Player;
 
 /**
  * An action that saves the server via the in game command save-all.
@@ -17,7 +18,7 @@ public class SaveServerAction extends Action {
 	}
 	
 	@Override
-	public int execute(MinecraftServerManager manager, String args) {
+	public int execute(MinecraftServerManager manager, Player executor, String args) {
 		
 		//Make sure that the server is running
 		if(!manager.getServer().isRunning()) {

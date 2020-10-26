@@ -2,6 +2,7 @@ package ccode.mcsm.action;
 
 import ccode.mcsm.MinecraftServerManager;
 import ccode.mcsm.permissions.Permissions;
+import ccode.mcsm.permissions.Player;
 import ccode.mcsm.task.Tasks;
 
 /**
@@ -16,8 +17,8 @@ public class TaskAction extends Action {
 	}
 	
 	@Override
-	public int execute(MinecraftServerManager manager, String task) {
-		Tasks.executeTask(task, manager);
+	public int execute(MinecraftServerManager manager, Player executor, String task) {
+		Tasks.executeTask(manager, executor, task);
 		return 0;
 	}
 	

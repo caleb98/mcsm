@@ -186,7 +186,7 @@ public class MinecraftServer implements Runnable {
 			return;
 		}
 		
-		action.execute(manager, args);
+		action.execute(manager, player, args);
 	}
 	
 	/**
