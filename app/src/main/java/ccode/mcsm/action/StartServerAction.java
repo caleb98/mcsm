@@ -5,6 +5,7 @@ import java.io.IOException;
 import ccode.mcsm.MinecraftServerManager;
 import ccode.mcsm.mcserver.MinecraftServer;
 import ccode.mcsm.permissions.Permissions;
+import ccode.mcsm.permissions.Player;
 
 /**
  * An action that starts the minecraft server process.
@@ -18,7 +19,7 @@ public class StartServerAction extends Action {
 	}
 	
 	@Override
-	public int execute(MinecraftServerManager manager, String args) {
+	public int execute(MinecraftServerManager manager, Player executor, String args) {
 		MinecraftServer server = manager.getServer();
 		
 		//Make sure that the server isn't already running

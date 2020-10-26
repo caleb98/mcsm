@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Scanner;
+import java.util.UUID;
 
 import com.esotericsoftware.jsonbeans.JsonException;
 import com.esotericsoftware.kryonet.Connection;
@@ -29,7 +30,6 @@ import ccode.mcsm.mcserver.event.PlayerAuthEvent;
 import ccode.mcsm.net.message.ActionMessage;
 import ccode.mcsm.net.message.ConnectMessage;
 import ccode.mcsm.net.message.ErrorMessage;
-import ccode.mcsm.net.message.InfoMessage;
 import ccode.mcsm.net.message.ServerConnectSuccess;
 import ccode.mcsm.permissions.Permissions;
 import ccode.mcsm.permissions.Player;
@@ -37,6 +37,8 @@ import ccode.mcsm.permissions.Player;
 public class MinecraftServerManager extends Listener {
 	
 	private static final String PLAYERS_FILE = "mcsm_players.json";
+	
+	private static final Player MCSM_EXECUTOR = new Player("MCSM-EXECUTOR", UUID.randomUUID().toString(), Permissions.MCSM_EXECUTOR);
 
 	private MinecraftServer server;
 	private LinkedList<MinecraftServerEvent> eventQueue = new LinkedList<>();
@@ -72,7 +74,7 @@ public class MinecraftServerManager extends Listener {
 				boolean handled = false;
 				for(String action : Action.getActions()) {
 					if(command.equals(action)) {
-						Action.get(action).execute(this, args);
+						Action.get(action).execute(this, MCSM_EXECUTOR, args);
 						handled = true;
 						break;
 					}
@@ -263,8 +265,10 @@ public class MinecraftServerManager extends Listener {
 		//Connection is verified, so continue processing the message
 		if(object instanceof ActionMessage) {
 			ActionMessage message = (ActionMessage) object;
-			Action.get(message.action).execute(this);
-			connection.sendTCP(new InfoMessage("Executed " + message.action));
+			//TODO: Executing messages from remote
+			//Action.get(message.action).execute(this);
+			
+			connection.sendTCP(new ErrorMessage("REMOTE CURRENTLY DISABLED!"));
 		}
 		
 	}

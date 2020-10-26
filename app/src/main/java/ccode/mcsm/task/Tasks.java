@@ -9,6 +9,7 @@ import java.util.Set;
 
 import ccode.mcsm.MinecraftServerManager;
 import ccode.mcsm.action.Action;
+import ccode.mcsm.permissions.Player;
 
 public class Tasks {
 
@@ -73,7 +74,7 @@ public class Tasks {
 		tasksReader.close();
 	}
 	
-	public static void executeTask(String task, MinecraftServerManager manager) {
+	public static void executeTask(MinecraftServerManager manager, Player executor, String task) {
 		if(tasks.containsKey(task)) {
 			Thread taskThread = new Thread(()->{
 				for(String fullCommand : tasks.get(task)) {
@@ -81,7 +82,7 @@ public class Tasks {
 					String arguments = fullCommand.substring(actionID.length()).trim();
 					Action action = Action.get(actionID);
 					if(action != null) {
-						int result = Action.get(actionID).execute(manager, arguments);
+						int result = Action.get(actionID).execute(manager, executor, arguments);
 						if(result < 0) {
 							System.out.printf("Action %s failed (%d); task %s stopping.\n", actionID, result, task);
 							break;

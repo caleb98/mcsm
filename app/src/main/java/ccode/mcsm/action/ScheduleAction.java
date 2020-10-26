@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import ccode.mcsm.MinecraftServerManager;
 import ccode.mcsm.permissions.Permissions;
+import ccode.mcsm.permissions.Player;
 import ccode.mcsm.scheduling.Scheduler;
 import ccode.mcsm.scheduling.TimeFormatters;
 
@@ -28,7 +29,7 @@ public class ScheduleAction extends Action {
 	}
 	
 	@Override
-	public int execute(MinecraftServerManager manager, String args) {
+	public int execute(MinecraftServerManager manager, Player executor, String args) {
 		Matcher m = datePattern.matcher(args);
 		
 		if(!m.find()) {
@@ -61,7 +62,7 @@ public class ScheduleAction extends Action {
 		
 		Scheduler.schedule(
 				()->{
-					Action.get(action).execute(manager, nextArgs);
+					Action.get(action).execute(manager, executor, nextArgs);
 				}, 
 				delay, 
 				TimeUnit.SECONDS

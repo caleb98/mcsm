@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import ccode.mcsm.MinecraftServerManager;
 import ccode.mcsm.permissions.Permissions;
+import ccode.mcsm.permissions.Player;
 /**
  * Represents a single action that the server manager may execute.
  * All actions are represented with the format <code>&ltActionID&gt 
@@ -88,15 +89,15 @@ public abstract class Action {
 	 * @param args the string of arguments for this action to run
 	 * @return 0 for success; non-zero value for error
 	 */
-	public abstract int execute(MinecraftServerManager manager, String args);
+	public abstract int execute(MinecraftServerManager manager, Player executor, String args);
 	
 	/**
 	 * Runs this action. Uses an empty string as the arguments.
 	 * @param manager the manager that should execute the action
 	 * @return 0 for success; non-zero value for error
 	 */
-	public final int execute(MinecraftServerManager manager) {
-		return execute(manager, "");
+	public final int execute(MinecraftServerManager manager, Player executor) {
+		return execute(manager, executor, "");
 	}
 	
 }

@@ -5,6 +5,7 @@ import java.util.Collections;
 
 import ccode.mcsm.MinecraftServerManager;
 import ccode.mcsm.permissions.Permissions;
+import ccode.mcsm.permissions.Player;
 
 /**
  * A utility action that prints each of the available actions
@@ -19,7 +20,7 @@ public class ListActionsAction extends Action {
 	}
 	
 	@Override
-	public int execute(MinecraftServerManager manager, String args) {
+	public int execute(MinecraftServerManager manager, Player executor, String args) {
 		ArrayList<String> actions = new ArrayList<>(Action.getActions());
 		Collections.sort(actions);
 		

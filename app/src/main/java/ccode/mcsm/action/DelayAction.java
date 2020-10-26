@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import ccode.mcsm.Block;
 import ccode.mcsm.MinecraftServerManager;
 import ccode.mcsm.permissions.Permissions;
+import ccode.mcsm.permissions.Player;
 import ccode.mcsm.scheduling.Scheduler;
 
 /**
@@ -25,7 +26,7 @@ public class DelayAction extends Action {
 	}
 	
 	@Override
-	public int execute(MinecraftServerManager manager, String delay) {
+	public int execute(MinecraftServerManager manager, Player executor, String delay) {
 		Matcher m = delayPattern.matcher(delay);
 		
 		if(!m.find()) {
