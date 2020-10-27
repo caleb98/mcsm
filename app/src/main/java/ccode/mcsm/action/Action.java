@@ -130,8 +130,9 @@ public abstract class Action {
 			MinecraftServer server = manager.getServer();
 			try {
 				server.sendCommand(String.format("tell %s %s", to.getName(), message));
+				//System.out.printf("Telling %s: %s\n", to.getName(), message);
 			} catch (IOException e) {
-				System.err.println("Error sending message to " + to.getName());
+				System.err.printf("Error sending message to %s: %s\n", to.getName(), message);
 			}
 		}
 	}
