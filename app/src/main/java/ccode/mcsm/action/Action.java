@@ -30,15 +30,23 @@ public abstract class Action {
 		register(new SaveServerAction());
 		register(new StopServerAction());
 		register(new SendCommandAction());
+		register(new SetPropertyAction());
+		
 		register(new TaskAction());
 		register(new ListActionsAction());
 		register(new ListTasksAction());
-		register(new SetPropertyAction());
+		
 		register(new WaitForAction());
-		register(new ScheduleAction());
 		register(new DelayAction());
+		
 		register(new SetPermissionLevelAction());
 		register(new GetPermissionLevelAction());
+		
+		register(new ScheduleAction());
+		register(new ListSchedulesAction());
+		register(new CancelScheduleAction());
+		register(new ScheduleInfoAction());
+		
 	
 		areActionsInitialized = true;
 		
