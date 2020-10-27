@@ -9,6 +9,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,7 +22,6 @@ import ccode.mcsm.mcserver.event.MinecraftServerEvent;
 import ccode.mcsm.mcserver.event.ServerStartedEvent;
 import ccode.mcsm.mcserver.event.ServerStoppedEvent;
 import ccode.mcsm.permissions.Player;
-import ccode.mcsm.scheduling.TimeFormatters;
 
 public class MinecraftServer implements Runnable {
 	
@@ -105,7 +106,7 @@ public class MinecraftServer implements Runnable {
 	
 	@Override
 	public void run() {
-		manager.addEvent(new ServerStartedEvent(TimeFormatters.now()));
+		manager.addEvent(new ServerStartedEvent(DateTimeFormatter.ISO_LOCAL_TIME.format(LocalTime.now())));
 		System.out.println("Starting server process thread...");
 		
 		try {
@@ -133,7 +134,7 @@ public class MinecraftServer implements Runnable {
 			e.printStackTrace();
 		}
 		
-		manager.addEvent(new ServerStoppedEvent(TimeFormatters.now()));
+		manager.addEvent(new ServerStoppedEvent(DateTimeFormatter.ISO_LOCAL_TIME.format(LocalTime.now())));
 		System.out.println("Server process closed.");
 	}
 	

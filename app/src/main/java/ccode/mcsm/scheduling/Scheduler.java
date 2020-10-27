@@ -1,20 +1,303 @@
 package ccode.mcsm.scheduling;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class Scheduler {
 	
-	//TODO: way to set scheduler pool size (will we really ever need more than 2 threads, though?)
-	private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
+	private static final ScheduledThreadPoolExecutor scheduler;
+	private static final HashMap<String, Schedule> scheduledTasks = new HashMap<>();
+	
+	static {
+		//TODO: way to set scheduler pool size (will we really ever need more than 2 threads, though?)
+		scheduler = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(2);
+		scheduler.setRemoveOnCancelPolicy(true);
+	}
+	
+	public static synchronized void registerSchedule(String scheduleName, Schedule schedule) {
+		cleanupSchedules();
+		scheduledTasks.put(scheduleName, schedule);
+	}
+	
+	public static synchronized void cancelSchedule(String scheduleName) {
+		cleanupSchedules();
+		Schedule schedule = scheduledTasks.get(scheduleName);
+		if(schedule != null) {
+			//Use false here since we can't cancel tasks that are already running
+			schedule.future.cancel(false);
+			scheduledTasks.remove(scheduleName);
+		}
+	}
+	
+	public static synchronized Schedule getSchedule(String scheduleID) {
+		cleanupSchedules();
+		return scheduledTasks.get(scheduleID);
+	}
+	
+	public static synchronized Set<String> getSchedules() {
+		cleanupSchedules();
+		return scheduledTasks.keySet();
+	}
+	
+	public static synchronized void cleanupSchedules() {
+		Iterator<Map.Entry<String, Schedule>> iter = scheduledTasks.entrySet().iterator();
+		while(iter.hasNext()) {
+			Map.Entry<String, Schedule> entry = iter.next();
+			if(entry.getValue().future.isDone() || entry.getValue().future.isCancelled()) {
+				iter.remove();
+			}
+		}
+	}
+
+	/**
+	 * @param value
+	 * @see java.util.concurrent.ScheduledThreadPoolExecutor#setContinueExistingPeriodicTasksAfterShutdownPolicy(boolean)
+	 */
+	public static void setContinueExistingPeriodicTasksAfterShutdownPolicy(boolean value) {
+		scheduler.setContinueExistingPeriodicTasksAfterShutdownPolicy(value);
+	}
+
+	/**
+	 * @return
+	 * @see java.util.concurrent.ScheduledThreadPoolExecutor#getContinueExistingPeriodicTasksAfterShutdownPolicy()
+	 */
+	public static boolean getContinueExistingPeriodicTasksAfterShutdownPolicy() {
+		return scheduler.getContinueExistingPeriodicTasksAfterShutdownPolicy();
+	}
+
+	/**
+	 * @param value
+	 * @see java.util.concurrent.ScheduledThreadPoolExecutor#setExecuteExistingDelayedTasksAfterShutdownPolicy(boolean)
+	 */
+	public static void setExecuteExistingDelayedTasksAfterShutdownPolicy(boolean value) {
+		scheduler.setExecuteExistingDelayedTasksAfterShutdownPolicy(value);
+	}
+
+	/**
+	 * @return
+	 * @see java.util.concurrent.ScheduledThreadPoolExecutor#getExecuteExistingDelayedTasksAfterShutdownPolicy()
+	 */
+	public static boolean getExecuteExistingDelayedTasksAfterShutdownPolicy() {
+		return scheduler.getExecuteExistingDelayedTasksAfterShutdownPolicy();
+	}
+
+	/**
+	 * @param value
+	 * @see java.util.concurrent.ScheduledThreadPoolExecutor#setRemoveOnCancelPolicy(boolean)
+	 */
+	public static void setRemoveOnCancelPolicy(boolean value) {
+		scheduler.setRemoveOnCancelPolicy(value);
+	}
+
+	/**
+	 * @return
+	 * @see java.util.concurrent.ScheduledThreadPoolExecutor#getRemoveOnCancelPolicy()
+	 */
+	public static boolean getRemoveOnCancelPolicy() {
+		return scheduler.getRemoveOnCancelPolicy();
+	}
+
+	/**
+	 * @return
+	 * @see java.util.concurrent.ScheduledThreadPoolExecutor#getQueue()
+	 */
+	public static BlockingQueue<Runnable> getQueue() {
+		return scheduler.getQueue();
+	}
+
+	/**
+	 * @return
+	 * @see java.util.concurrent.ThreadPoolExecutor#isTerminating()
+	 */
+	public static boolean isTerminating() {
+		return scheduler.isTerminating();
+	}
+
+	/**
+	 * @param threadFactory
+	 * @see java.util.concurrent.ThreadPoolExecutor#setThreadFactory(java.util.concurrent.ThreadFactory)
+	 */
+	public static void setThreadFactory(ThreadFactory threadFactory) {
+		scheduler.setThreadFactory(threadFactory);
+	}
+
+	/**
+	 * @return
+	 * @see java.util.concurrent.ThreadPoolExecutor#getThreadFactory()
+	 */
+	public static ThreadFactory getThreadFactory() {
+		return scheduler.getThreadFactory();
+	}
+
+	/**
+	 * @param handler
+	 * @see java.util.concurrent.ThreadPoolExecutor#setRejectedExecutionHandler(java.util.concurrent.RejectedExecutionHandler)
+	 */
+	public static void setRejectedExecutionHandler(RejectedExecutionHandler handler) {
+		scheduler.setRejectedExecutionHandler(handler);
+	}
+
+	/**
+	 * @return
+	 * @see java.util.concurrent.ThreadPoolExecutor#getRejectedExecutionHandler()
+	 */
+	public static RejectedExecutionHandler getRejectedExecutionHandler() {
+		return scheduler.getRejectedExecutionHandler();
+	}
+
+	/**
+	 * @param corePoolSize
+	 * @see java.util.concurrent.ThreadPoolExecutor#setCorePoolSize(int)
+	 */
+	public static void setCorePoolSize(int corePoolSize) {
+		scheduler.setCorePoolSize(corePoolSize);
+	}
+
+	/**
+	 * @return
+	 * @see java.util.concurrent.ThreadPoolExecutor#getCorePoolSize()
+	 */
+	public static int getCorePoolSize() {
+		return scheduler.getCorePoolSize();
+	}
+
+	/**
+	 * @return
+	 * @see java.util.concurrent.ThreadPoolExecutor#prestartCoreThread()
+	 */
+	public static boolean prestartCoreThread() {
+		return scheduler.prestartCoreThread();
+	}
+
+	/**
+	 * @return
+	 * @see java.util.concurrent.ThreadPoolExecutor#prestartAllCoreThreads()
+	 */
+	public static int prestartAllCoreThreads() {
+		return scheduler.prestartAllCoreThreads();
+	}
+
+	/**
+	 * @return
+	 * @see java.util.concurrent.ThreadPoolExecutor#allowsCoreThreadTimeOut()
+	 */
+	public static boolean allowsCoreThreadTimeOut() {
+		return scheduler.allowsCoreThreadTimeOut();
+	}
+
+	/**
+	 * @param value
+	 * @see java.util.concurrent.ThreadPoolExecutor#allowCoreThreadTimeOut(boolean)
+	 */
+	public static void allowCoreThreadTimeOut(boolean value) {
+		scheduler.allowCoreThreadTimeOut(value);
+	}
+
+	/**
+	 * @param maximumPoolSize
+	 * @see java.util.concurrent.ThreadPoolExecutor#setMaximumPoolSize(int)
+	 */
+	public static void setMaximumPoolSize(int maximumPoolSize) {
+		scheduler.setMaximumPoolSize(maximumPoolSize);
+	}
+
+	/**
+	 * @return
+	 * @see java.util.concurrent.ThreadPoolExecutor#getMaximumPoolSize()
+	 */
+	public static int getMaximumPoolSize() {
+		return scheduler.getMaximumPoolSize();
+	}
+
+	/**
+	 * @param time
+	 * @param unit
+	 * @see java.util.concurrent.ThreadPoolExecutor#setKeepAliveTime(long, java.util.concurrent.TimeUnit)
+	 */
+	public static void setKeepAliveTime(long time, TimeUnit unit) {
+		scheduler.setKeepAliveTime(time, unit);
+	}
+
+	/**
+	 * @param unit
+	 * @return
+	 * @see java.util.concurrent.ThreadPoolExecutor#getKeepAliveTime(java.util.concurrent.TimeUnit)
+	 */
+	public static long getKeepAliveTime(TimeUnit unit) {
+		return scheduler.getKeepAliveTime(unit);
+	}
+
+	/**
+	 * @param task
+	 * @return
+	 * @see java.util.concurrent.ThreadPoolExecutor#remove(java.lang.Runnable)
+	 */
+	public static boolean remove(Runnable task) {
+		return scheduler.remove(task);
+	}
+
+	/**
+	 * 
+	 * @see java.util.concurrent.ThreadPoolExecutor#purge()
+	 */
+	public static void purge() {
+		scheduler.purge();
+	}
+
+	/**
+	 * @return
+	 * @see java.util.concurrent.ThreadPoolExecutor#getPoolSize()
+	 */
+	public static int getPoolSize() {
+		return scheduler.getPoolSize();
+	}
+
+	/**
+	 * @return
+	 * @see java.util.concurrent.ThreadPoolExecutor#getActiveCount()
+	 */
+	public static int getActiveCount() {
+		return scheduler.getActiveCount();
+	}
+
+	/**
+	 * @return
+	 * @see java.util.concurrent.ThreadPoolExecutor#getLargestPoolSize()
+	 */
+	public static int getLargestPoolSize() {
+		return scheduler.getLargestPoolSize();
+	}
+
+	/**
+	 * @return
+	 * @see java.util.concurrent.ThreadPoolExecutor#getTaskCount()
+	 */
+	public static long getTaskCount() {
+		return scheduler.getTaskCount();
+	}
+
+	/**
+	 * @return
+	 * @see java.util.concurrent.ThreadPoolExecutor#getCompletedTaskCount()
+	 */
+	public static long getCompletedTaskCount() {
+		return scheduler.getCompletedTaskCount();
+	}
 
 	/**
 	 * @param command
