@@ -52,7 +52,7 @@ public abstract class Action {
 			return;
 		}
 		actions.put(action.id, action);
-		System.out.printf("Registered action: \t%s\n", action.id);
+		System.out.printf("Registered action: \t%s\t(%s)\n", action.id, action.requiredPermission);
 	}
 	
 	public final String id;
