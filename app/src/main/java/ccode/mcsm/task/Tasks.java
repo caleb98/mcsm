@@ -17,8 +17,10 @@ import ccode.mcsm.permissions.Player;
 public class Tasks {
 
 	private static final Pattern TASK_DEFINITION;
-	private static final Pattern TASK_ACTION = Pattern.compile("\t[\\w\\s]+");
+	private static final Pattern TASK_ACTION = Pattern.compile("\t[\\w\\s\\$]+");
 	private static final Pattern EMPTY_LINE = Pattern.compile("[\\s\t]*");
+	private static final Pattern HAS_ARGS = Pattern.compile("\\$\\d");
+	private static final Pattern TASK_ARGS = Pattern.compile("([^\"]\\S*|\".+?\")\\s*");
 	private static final String TASKS_FILE = "tasks";
 	private static final HashMap<String, Task> tasks = new HashMap<>();
 	private static int taskCount = 0;
@@ -110,9 +112,11 @@ public class Tasks {
 		tasksReader.close();
 	}
 	
-	public static void executeTask(MinecraftServerManager manager, Player executor, String taskID) {
+	public static void executeTask(MinecraftServerManager manager, Player executor, String taskID, String taskArgsString) {
 		if(tasks.containsKey(taskID)) {
 			Task task = tasks.get(taskID);
+			
+			System.out.printf("Running task %s with args: \"%s\"\n", taskID, taskArgsString);
 			
 			//Check executor permissions
 			if(!executor.hasPermissions(task)) {
@@ -120,11 +124,40 @@ public class Tasks {
 				return;
 			}
 			
+			//Split up the arguments
+			Matcher taskArgsFinder = TASK_ARGS.matcher(taskArgsString);
+			ArrayList<String> taskArgs = new ArrayList<>();
+			while(taskArgsFinder.find()) {
+				taskArgs.add(taskArgsFinder.group(1).replace("\"", ""));
+			}
+			
 			Thread taskThread = new Thread(()->{
 				for(String fullCommand : task.actions) {
+					
+					//Get the action to run
 					String actionID = fullCommand.split("\s+")[0];
-					String arguments = fullCommand.substring(actionID.length()).trim();
 					Action action = Action.get(actionID);
+					
+					//Get action arguments
+					String arguments = fullCommand.substring(actionID.length()).trim();
+					String replString;
+					String next;
+					int i = 0;
+					while(i < taskArgs.size()) {
+						replString = String.format("\\$%d", i);
+						next = arguments.replaceAll(replString, taskArgs.get(i));
+						if(!next.equals(arguments))
+							arguments = next;
+						else 
+							break;
+					}
+					
+					Matcher hasArgs = HAS_ARGS.matcher(arguments);
+					if(hasArgs.find()) {
+						Action.sendMessage(manager, executor, "Error: not enough arguments provided for task.");
+						break;
+					}
+					
 					if(action != null) {
 						int result = Action.get(actionID).execute(manager, executor, arguments);
 						if(result < 0) {
@@ -133,15 +166,16 @@ public class Tasks {
 						}
 					}
 					else {
-						Action.sendMessage(manager, executor, "Error in task \'%s\': listed action \'%s\' does not exist!\n", taskID, actionID);
+						Action.sendMessage(manager, executor, "Error in task \'%s\': listed action \'%s\' does not exist!", taskID, actionID);
 					}
+					
 				}
 			}, "Task-" + taskCount++ + "-" + taskID);
 			taskThread.setDaemon(true);
 			taskThread.start();
 		}
 		else {
-			Action.sendMessage(manager, executor, "Unable to execute task \'%s\': task not found.\n", taskID);
+			Action.sendMessage(manager, executor, "Unable to execute task \'%s\': task not found.", taskID);
 		}
 	}
 	

@@ -19,8 +19,27 @@ public class TaskAction extends Action {
 	}
 	
 	@Override
-	public int execute(MinecraftServerManager manager, Player executor, String task) {
-		Tasks.executeTask(manager, executor, task);
+	public int execute(MinecraftServerManager manager, Player executor, String taskCommand) {
+		String[] split = taskCommand.split("\\s+");
+		
+		//Make sure a task name was provided
+		if(split.length == 0) {
+			sendMessage(manager, executor, "Error: no task name provided.");
+			return -1;
+		}
+		
+		//Grab task name
+		String taskName = split[0];
+		String taskArgs = "";
+		
+		//If our split string has more than one value, that means
+		//that we had arguments to provide to the task. Find that 
+		//args string.
+		if(split.length > 1) {
+			taskArgs = taskCommand.substring(taskName.length()).trim();
+		}
+		
+		Tasks.executeTask(manager, executor, taskName, taskArgs);
 		return 0;
 	}
 	
