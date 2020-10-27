@@ -32,7 +32,7 @@ public class ScheduleAction extends Action {
 	public int execute(MinecraftServerManager manager, Player executor, String args) {
 		Matcher m = datePattern.matcher(args);
 		
-		if(!m.find()) {
+		if(!m.matches()) {
 			sendMessage(manager, executor, "Error in Schedule: provided arguments don't match expected input.");
 			return -1;
 		}

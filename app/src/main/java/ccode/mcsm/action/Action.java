@@ -97,16 +97,17 @@ public abstract class Action {
 	 */
 	public static void runAsync(String actionID, MinecraftServerManager manager, Player executor, String args) {
 		final Action action = actions.get(actionID);
+		final String trimmedArgs = args.trim();
 		if(action != null) {
 			//Tasks run asynchronously anyway, so just run the task
 			//and let it handle the ansync part by itself.
 			if(actionID.equals(TaskAction.ID)) {
-				action.execute(manager, executor, args);
+				action.execute(manager, executor, trimmedArgs);
 			}
 			//Not a task action, so make the thread and run
 			else {
 				Thread actionThread = new Thread(()->{
-					action.execute(manager, executor, args);
+					action.execute(manager, executor, trimmedArgs);
 				}, "AsyncAction-" + asyncActionCount++ + "-" + actionID);
 				actionThread.setDaemon(true);
 				actionThread.start();
