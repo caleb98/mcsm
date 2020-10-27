@@ -25,9 +25,9 @@ public class ListTasksAction extends Action {
 		ArrayList<String> tasks = new ArrayList<>(Tasks.getTasks());
 		Collections.sort(tasks);
 		//TODO: task permission levels
-		System.out.println("Available tasks: ");
+		sendMessage(manager, executor, "Available tasks: ");
 		for(String task : tasks) {
-			System.out.printf("\t%s\n", task);
+			sendMessage(manager, executor, " > %s", task);
 		}
 		return 0;
 	}
