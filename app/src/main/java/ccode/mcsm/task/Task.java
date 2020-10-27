@@ -1,14 +1,19 @@
 package ccode.mcsm.task;
 
 import java.util.Collection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import ccode.mcsm.action.Action;
 import ccode.mcsm.permissions.Permissions;
 
 public class Task {
 
+	private static final Pattern ARGUMENT = Pattern.compile("\\$(\\d+)");
+	
 	public final String[] actions;
 	public final Permissions requiredPermission;
+	public final int argc;
 	
 	/**
 	 * Creates a new task from the specified collection of 
@@ -18,16 +23,7 @@ public class Task {
 	 * @param actions actions to run for this task
 	 */
 	Task(Collection<String> actions) {
-		this.actions = actions.toArray(new String[actions.size()]);
-		Permissions maxPermission = Permissions.NO_PERMISSIONS;
-		for(String a : this.actions) {
-			String actionID = a.split("\s+")[0];
-			Action action = Action.get(actionID);
-			if(action != null && action.requiredPermission.level > maxPermission.level) {
-				maxPermission = action.requiredPermission;
-			}
-		}
-		requiredPermission = maxPermission;
+		this(actions, null);
 	}
 	
 	/**
@@ -42,6 +38,8 @@ public class Task {
 	 */
 	Task(Collection<String> actions, Permissions permissionsRequired) {
 		this.actions = actions.toArray(new String[actions.size()]);
+		
+		//Setup permissions
 		if(permissionsRequired == null) {
 			Permissions maxPermission = Permissions.NO_PERMISSIONS;
 			for(String a : this.actions) {
@@ -51,11 +49,24 @@ public class Task {
 					maxPermission = action.requiredPermission;
 				}
 			}
-			this.requiredPermission = maxPermission;
+			requiredPermission = maxPermission;
 		}
 		else {
 			this.requiredPermission = permissionsRequired;
 		}
+		
+		//Find all our argument strings
+		int maxArg = -1;
+		for(String action : actions) {
+			Matcher argFinder = ARGUMENT.matcher(action);
+			while(argFinder.find()) {
+				int argNum = Integer.valueOf(argFinder.group(1));
+				if(argNum > maxArg) {
+					maxArg = argNum;
+				}
+			}
+		}
+		argc = maxArg + 1;
 	}
 	
 }

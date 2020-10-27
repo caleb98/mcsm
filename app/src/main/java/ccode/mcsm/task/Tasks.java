@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -57,16 +58,7 @@ public class Tasks {
 				//See if we were already processing a task's action list.
 				//If so, finalize that task
 				if(currentTask != null) {
-					if(tasks.containsKey(currentTask)) {
-						System.out.printf("WARNING: Task %s overwritten by different task with same name.\n", currentTask);
-					}
-					Permissions permission = null;
-					try {
-						permission = Permissions.valueOf(currentPermissions);
-					} catch (IllegalArgumentException | NullPointerException e) {}
-					Task loaded = new Task(currentTaskActions, permission);
-					tasks.put(currentTask, loaded);
-					System.out.printf("Loaded task:\t%s (%s)\n", currentTask, loaded.requiredPermission);
+					registerTask(currentTask, currentPermissions, currentTaskActions);
 				}
 				
 				//Get new task name and clear actions
@@ -97,19 +89,23 @@ public class Tasks {
 		
 		//Check for final task
 		if(currentTask != null) {
-			if(tasks.containsKey(currentTask)) {
-				System.out.printf("WARNING: Task %s overwritten by different task with same name.\n", currentTask);
-			}
-			Permissions permission = null;
-			try {
-				permission = Permissions.valueOf(currentPermissions);
-			} catch (IllegalArgumentException | NullPointerException e) {}
-			Task loaded = new Task(currentTaskActions, permission);
-			tasks.put(currentTask, loaded);
-			System.out.printf("Loaded task:\t%s (%s)\n", currentTask, loaded.requiredPermission);
+			registerTask(currentTask, currentPermissions, currentTaskActions);
 		}
 		
 		tasksReader.close();
+	}
+	
+	public static void registerTask(String taskID, String permissions, Collection<String> actions) {
+		if(tasks.containsKey(taskID)) {
+			System.out.printf("WARNING: Task %s overwritten by different task with same name.\n", taskID);
+		}
+		Permissions permission = null;
+		try {
+			permission = Permissions.valueOf(permissions);
+		} catch (IllegalArgumentException | NullPointerException e) {}
+		Task task = new Task(actions, permission);
+		tasks.put(taskID, task);
+		System.out.printf("Loaded task:\t%s (%s, argc=%d)\n", taskID, task.requiredPermission, task.argc);
 	}
 	
 	public static void executeTask(MinecraftServerManager manager, Player executor, String taskID, String taskArgsString) {
@@ -131,6 +127,13 @@ public class Tasks {
 				taskArgs.add(taskArgsFinder.group(1).replace("\"", ""));
 			}
 			
+			//Make sure we have enough arguments for the task
+			if(taskArgs.size() != task.argc) {
+				Action.sendMessage(manager, executor, "Error: invalid number of arguments provided for task %s (%d given, expected %d)",
+						taskID, taskArgs.size(), task.argc);
+				return;
+			}
+			
 			Thread taskThread = new Thread(()->{
 				for(String fullCommand : task.actions) {
 					
@@ -150,12 +153,6 @@ public class Tasks {
 							arguments = next;
 						else 
 							break;
-					}
-					
-					Matcher hasArgs = HAS_ARGS.matcher(arguments);
-					if(hasArgs.find()) {
-						Action.sendMessage(manager, executor, "Error: not enough arguments provided for task.");
-						break;
 					}
 					
 					if(action != null) {
