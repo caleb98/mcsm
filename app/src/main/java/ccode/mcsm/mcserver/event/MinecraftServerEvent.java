@@ -46,14 +46,6 @@ public abstract class MinecraftServerEvent {
 		});
 		
 		eventProducers.add((line)->{
-			Matcher m = ServerUnloadedEvent.MATCHER.matcher(line);
-			if(!m.matches()) {
-				return null;
-			}
-			return new ServerUnloadedEvent(m.group(1));
-		});
-		
-		eventProducers.add((line)->{
 			Matcher m = PlayerAuthEvent.MATHCHER.matcher(line);
 			if(!m.matches()) {
 				return null;
