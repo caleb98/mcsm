@@ -25,7 +25,7 @@ public class StartServerAction extends Action {
 		//Make sure that the server isn't already running
 		if(server.isRunning()) {
 			sendMessage(manager, executor, "Unable to start server: server already started");
-			return 0;
+			return -1;
 		}
 		
 		//Start the server

@@ -23,7 +23,7 @@ public class StopServerAction extends Action {
 		//Make sure the server is running
 		if(!manager.getServer().isRunning()) {
 			sendMessage(manager, executor, "unable to stop server: server process not active");
-			return 0;
+			return -1;
 		}
 		
 		try {

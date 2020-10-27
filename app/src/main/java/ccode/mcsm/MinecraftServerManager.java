@@ -66,7 +66,7 @@ public class MinecraftServerManager extends Listener {
 			String command;
 			String args;
 			
-			while(true)	 {
+			while(true) {
 				
 				command = keyboard.next();
 				args = keyboard.nextLine().trim();
@@ -98,7 +98,7 @@ public class MinecraftServerManager extends Listener {
 			System.out.println("Exiting...");
 			exit(0);
 			
-		}, "Input-Processor-Thread");
+		}, "MCSM-Main-Thread");
 		
 		Thread eventProcessor = new Thread(()->{
 			while(true) {

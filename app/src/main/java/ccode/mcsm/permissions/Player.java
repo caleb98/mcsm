@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import ccode.mcsm.action.Action;
+import ccode.mcsm.task.Task;
 
 public class Player {
 	
@@ -51,6 +52,11 @@ public class Player {
 			}
 		}
 		return false;
+	}
+	
+	public boolean hasPermissions(Task task) {
+		//TODO: task level overrides
+		return task.requiredPermission.level <= permissions.level;
 	}
 	
 	public void addPermission(String permission) {
