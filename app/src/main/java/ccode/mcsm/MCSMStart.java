@@ -27,7 +27,7 @@ public class MCSMStart {
 		}
 		
 		Server server = KryoCreator.createServer();
-		MinecraftServerManager listener = new MinecraftServerManager("java", "-Xms1024M", "-Xmx4096M", "-jar", args[0], "-nogui");
+		MinecraftServerManager listener = new MinecraftServerManager(args[0]);
 		
 		try {
 			server.addListener(listener);

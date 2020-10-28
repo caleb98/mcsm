@@ -2,6 +2,7 @@ package ccode.mcsm.mcserver;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -27,6 +28,7 @@ public class MinecraftServer implements Runnable {
 	
 	private static final Pattern MSCM_COMMAND_PATTERN = Pattern.compile("\\[\\d{2}:\\d{2}:\\d{2}\\] \\[Server thread\\/INFO\\]: <(\\w+)> mcsm (.+)");
 	
+	private File serverDirectory;
 	private MinecraftServerManager manager;
 	private String[] arguments;
 
@@ -38,8 +40,9 @@ public class MinecraftServer implements Runnable {
 	private BufferedReader stderr;
 	private BufferedWriter stdin;
 	
-	public MinecraftServer(MinecraftServerManager manager, String... args) {
+	public MinecraftServer(MinecraftServerManager manager, File serverDir, String... args) {
 		this.manager = manager;
+		serverDirectory = serverDir;
 		arguments = args;
 		
 		loadProperties();
@@ -47,7 +50,7 @@ public class MinecraftServer implements Runnable {
 	
 	public void loadProperties() {
 		try {
-			properties.load(new FileReader("server.properties"));
+			properties.load(new FileReader(serverDir("server.properties")));
 			arePropsLoaded = true;
 		} catch (IOException e) {
 			System.out.println("Error loading properties file.");
@@ -65,13 +68,14 @@ public class MinecraftServer implements Runnable {
 	
 	public void setProperty(String property, String value) throws IOException {
 		properties.setProperty(property, value);
-		properties.store(new FileWriter("server.properties"), null);
+		properties.store(new FileWriter(serverDir("server.properties")), null);
 	}
 	
 	public void start() throws IOException {
 		
 		//Create the process
 		ProcessBuilder pb = new ProcessBuilder(arguments);
+		pb.directory(serverDirectory);
 		serverProcess = pb.start();
 		
 		//Redirect process streams
@@ -204,6 +208,10 @@ public class MinecraftServer implements Runnable {
 			stdin.write(command + "\n");
 		}
 		stdin.flush();
+	}
+	
+	private String serverDir(String dir) {
+		return serverDirectory.getPath() + File.separator + dir;
 	}
 	
 	// ==========================================

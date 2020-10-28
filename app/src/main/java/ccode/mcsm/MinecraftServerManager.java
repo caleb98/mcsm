@@ -2,6 +2,7 @@ package ccode.mcsm;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -40,6 +41,7 @@ public class MinecraftServerManager extends Listener {
 	
 	public static final Player MCSM_EXECUTOR = new Player("MCSM-EXECUTOR", UUID.randomUUID().toString(), Permissions.MCSM_EXECUTOR);
 
+	private File serverDirectory;
 	private MinecraftServer server;
 	private LinkedList<MinecraftServerEvent> eventQueue = new LinkedList<>();
 	private ArrayList<EventListener> eventListeners = new ArrayList<>();
@@ -53,10 +55,12 @@ public class MinecraftServerManager extends Listener {
 	private ArrayList<Connection> verified = new ArrayList<>();
 	private HashMap<Connection, String> usernames = new HashMap<>();
 	
-	public MinecraftServerManager(String... arguments) {
+	public MinecraftServerManager(String serverJar) {
 		this.password = "password"; //TODO: set this up properly
 		
-		server = new MinecraftServer(this, arguments);
+		serverDirectory = new File(serverJar + File.separator + "..");
+		
+		server = new MinecraftServer(this, serverDirectory, "java", "-Xms1024M", "-Xmx4096M", "-jar", serverJar, "-nogui");
 		loadPlayers();
 		
 		//Start keyboard listening thread
@@ -171,13 +175,13 @@ public class MinecraftServerManager extends Listener {
 		} catch(FileNotFoundException e) {
 			//ignore, we'll make the file later anyway
 		} catch (IOException e) {
-			System.err.println("Error reading players file.");
+			System.err.println("Error reading mcsm players file.");
 			e.printStackTrace();
 		}
 		
 		//Try to load players from the usercache
 		try (
-			BufferedReader usercacheReader = new BufferedReader(new FileReader("usercache.json"));
+			BufferedReader usercacheReader = new BufferedReader(new FileReader(serverDir("usercache.json")));
 		) {
 			JsonArray usercache = Json.fromJson(usercacheReader, JsonArray.class);
 			for(int i = 0; i < usercache.size(); ++i) {
@@ -283,6 +287,10 @@ public class MinecraftServerManager extends Listener {
 	
 	public HashMap<Connection, String> getUsernames() {
 		return usernames;
+	}
+	
+	private String serverDir(String dir) {
+		return serverDirectory.getPath() + File .separator + dir;
 	}
 	
 }
