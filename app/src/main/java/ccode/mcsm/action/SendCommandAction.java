@@ -15,7 +15,7 @@ public class SendCommandAction extends Action {
 	public static final String ID = "SendCommand";
 	
 	SendCommandAction() {
-		super(ID, Permissions.SERVER_MODERATOR);
+		super(ID, Permissions.SERVER_OPERATOR);
 	}
 	
 	@Override

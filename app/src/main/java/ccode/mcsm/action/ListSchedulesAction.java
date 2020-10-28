@@ -13,7 +13,7 @@ public class ListSchedulesAction extends Action {
 	public static final String ID = "ListSchedules";
 	
 	public ListSchedulesAction() {
-		super(ID, Permissions.SERVER_MODERATOR);
+		super(ID, Permissions.SERVER_OPERATOR);
 	}
 	
 	@Override

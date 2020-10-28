@@ -9,7 +9,7 @@ public class SetPermissionLevelAction extends Action {
 	public static final String ID = "SetPermissionLevel";
 	
 	SetPermissionLevelAction() {
-		super(ID, Permissions.SERVER_MODERATOR);
+		super(ID, Permissions.SERVER_OPERATOR);
 	}
 
 	@Override

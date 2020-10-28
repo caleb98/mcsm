@@ -16,7 +16,7 @@ public class WaitForAction extends Action {
 	public static final String ID = "WaitFor";
 	
 	WaitForAction() {
-		super(ID, Permissions.LEVEL_4);
+		super(ID, Permissions.MODERATOR);
 	}
 	
 	@Override

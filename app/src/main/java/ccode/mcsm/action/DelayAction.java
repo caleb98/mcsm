@@ -22,7 +22,7 @@ public class DelayAction extends Action {
 	private static final Pattern delayPattern = Pattern.compile("(?:(\\d+)h)?(?:(\\d+)m)?(?:(\\d+)s)");
 	
 	DelayAction() {
-		super(ID, Permissions.LEVEL_4);
+		super(ID, Permissions.MODERATOR);
 	}
 	
 	@Override
