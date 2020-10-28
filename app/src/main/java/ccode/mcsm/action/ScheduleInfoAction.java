@@ -11,7 +11,7 @@ public class ScheduleInfoAction extends Action {
 	public static final String ID = "ScheduleInfo";
 	
 	ScheduleInfoAction() {
-		super(ID, Permissions.SERVER_MODERATOR);
+		super(ID, Permissions.SERVER_OPERATOR);
 	}
 	
 	@Override

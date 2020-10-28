@@ -15,7 +15,7 @@ public class SetPropertyAction extends Action {
 	public static final String ID = "SetProperty";
 	
 	SetPropertyAction() {
-		super(ID, Permissions.SERVER_OPERATOR);
+		super(ID, Permissions.SERVER_OWNER);
 	}
 	
 	@Override

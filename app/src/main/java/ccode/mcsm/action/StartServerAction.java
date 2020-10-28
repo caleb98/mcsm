@@ -15,7 +15,7 @@ public class StartServerAction extends Action {
 	public static final String ID = "StartServer";
 	
 	StartServerAction() {
-		super(ID, Permissions.LEVEL_4);
+		super(ID, Permissions.MODERATOR);
 	}
 	
 	@Override
