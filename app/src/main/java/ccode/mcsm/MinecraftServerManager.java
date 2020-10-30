@@ -24,6 +24,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 import ccode.mcsm.action.Action;
+import ccode.mcsm.backup.BackupManager;
 import ccode.mcsm.mcserver.MinecraftServer;
 import ccode.mcsm.mcserver.event.EventListener;
 import ccode.mcsm.mcserver.event.MinecraftServerEvent;
@@ -38,6 +39,9 @@ import ccode.mcsm.permissions.Player;
 public class MinecraftServerManager extends Listener {
 	
 	private static final String PLAYERS_FILE = "mcsm_players.json";
+	private static final String BACKUP_MANAGER_FILE = "mcsm_backup.json";
+	private static final String BACKUP_DEFAULT_DIR = "mcsm_backup";
+	private static final int BACKUP_DEFAULT_MAX = 10;
 	
 	public static final Player MCSM_EXECUTOR = new Player("MCSM-EXECUTOR", UUID.randomUUID().toString(), Permissions.MCSM_EXECUTOR);
 
@@ -49,6 +53,7 @@ public class MinecraftServerManager extends Listener {
 	
 	// uuid -> player
 	private HashMap<String, Player> players = new HashMap<>();
+	private BackupManager backupManager;
 	
 	//Data for remote connection
 	private String password;
@@ -58,9 +63,17 @@ public class MinecraftServerManager extends Listener {
 	public MinecraftServerManager(String serverJar) {
 		this.password = "password"; //TODO: set this up properly
 		
-		serverDirectory = new File(serverJar + File.separator + "..");
+		try {
+			serverDirectory = new File(serverJar).getCanonicalFile().getParentFile();
+		} catch (IOException e) {
+			// TODO Handle this more gracefully
+			System.err.printf("Error grabbing server directory: %s\n", e.getMessage());
+			System.exit(-1);
+		}
 		
 		server = new MinecraftServer(this, serverDirectory, "java", "-Xms1024M", "-Xmx4096M", "-jar", serverJar, "-nogui");
+		
+		loadBackupManager();
 		loadPlayers();
 		
 		//Start keyboard listening thread
@@ -145,13 +158,39 @@ public class MinecraftServerManager extends Listener {
 	}
 	
 	private void exit(int code) {
+		saveBackupManager();
 		savePlayers();
 		System.exit(code);
 	}
 	
+	private void loadBackupManager() {
+		try (
+				BufferedReader backupReader = new BufferedReader(new FileReader(BACKUP_MANAGER_FILE));
+		) {
+			backupManager = Json.fromJson(backupReader, BackupManager.class);
+			backupManager.setServerDir(serverDirectory);
+			backupReader.close();
+		} catch (IOException e) {
+			System.err.printf("Error reading backup manager file: %s\n", e.getMessage());
+			backupManager = new BackupManager(serverDirectory, BACKUP_DEFAULT_DIR, BACKUP_DEFAULT_MAX);
+		}
+	}
+	
+	private void saveBackupManager() {
+		try (
+				BufferedWriter backupWriter = new BufferedWriter(new FileWriter(BACKUP_MANAGER_FILE));
+		) {
+			Gson gson = Json.newBuilder().setPrettyPrinting().create();
+			gson.toJson(backupManager, backupManager.getClass(), backupWriter);
+			backupWriter.close();
+		} catch (IOException e) {
+			System.err.printf("Error saving backup manager file: %s\n", e.getMessage());
+		}
+	}
+	
 	private void savePlayers() {
 		try (
-			BufferedWriter playerWriter = new BufferedWriter(new FileWriter(PLAYERS_FILE));
+				BufferedWriter playerWriter = new BufferedWriter(new FileWriter(PLAYERS_FILE));
 		) {
 			Gson gson = Json.newBuilder().setPrettyPrinting().create();
 			gson.toJson(players, players.getClass(), playerWriter);
@@ -163,7 +202,7 @@ public class MinecraftServerManager extends Listener {
 	
 	private void loadPlayers() {
 		try (
-			BufferedReader playerReader = new BufferedReader(new FileReader(PLAYERS_FILE));
+				BufferedReader playerReader = new BufferedReader(new FileReader(PLAYERS_FILE));
 		) {
 			Type hashMapType = new TypeToken<HashMap<String, Player>>(){}.getType();
 			players = Json.fromJson(playerReader, hashMapType);
@@ -181,7 +220,7 @@ public class MinecraftServerManager extends Listener {
 		
 		//Try to load players from the usercache
 		try (
-			BufferedReader usercacheReader = new BufferedReader(new FileReader(serverDir("usercache.json")));
+				BufferedReader usercacheReader = new BufferedReader(new FileReader(serverDir("usercache.json")));
 		) {
 			JsonArray usercache = Json.fromJson(usercacheReader, JsonArray.class);
 			for(int i = 0; i < usercache.size(); ++i) {
@@ -273,6 +312,10 @@ public class MinecraftServerManager extends Listener {
 			connection.sendTCP(new ErrorMessage("REMOTE CURRENTLY DISABLED!"));
 		}
 		
+	}
+	
+	public BackupManager getBackupManager() {
+		return backupManager;
 	}
 	
 	public MinecraftServer getServer() {

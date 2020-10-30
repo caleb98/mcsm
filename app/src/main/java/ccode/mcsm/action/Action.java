@@ -29,6 +29,7 @@ public abstract class Action {
 		register(new StartServerAction());
 		register(new SaveServerAction());
 		register(new StopServerAction());
+		register(new BackupWorldAction());
 		register(new SendCommandAction());
 		register(new SetPropertyAction());
 		

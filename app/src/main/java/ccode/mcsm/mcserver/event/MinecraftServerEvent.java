@@ -53,6 +53,14 @@ public abstract class MinecraftServerEvent {
 			return new PlayerAuthEvent(m.group(1), m.group(2), m.group(3));
 		});
 		
+		eventProducers.add((line)->{
+			Matcher m = WorldSavedEvent.MATCHER.matcher(line);
+			if(!m.matches()) {
+				return null;
+			}
+			return new WorldSavedEvent(m.group(1));
+		});
+		
 		events = Collections.unmodifiableList(eventProducers);
 	}
 	

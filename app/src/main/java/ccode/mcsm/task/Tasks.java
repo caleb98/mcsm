@@ -21,7 +21,7 @@ import ccode.mcsm.permissions.Player;
 public class Tasks {
 
 	private static final Pattern TASK_DEFINITION;
-	private static final Pattern TASK_ACTION = Pattern.compile("\t[\\w\\s\\$]+");
+	private static final Pattern TASK_ACTION = Pattern.compile("\t[\\w]+.*");
 	private static final Pattern EMPTY_LINE = Pattern.compile("[\\s\t]*");
 	private static final Pattern TASK_ARGS = Pattern.compile("([^\"]\\S*|\".+?\")\\s*");
 	private static final String TASKS_FILE_NAME = "mcsm_tasks";
@@ -41,11 +41,7 @@ public class Tasks {
 	}
 	
 	public static void loadTasks() throws IOException {
-		//Grab default tasks from the classpath
-		InputStream defaultTasksInputStream = Tasks.class.getResourceAsStream("/default_tasks");
-		loadTasksFromInputStream(defaultTasksInputStream);
-		
-		//If the custom tasks file doesn't exists, go ahead and create it
+		//If the tasks file doesn't exists, go ahead and create it
 		File tasksFile = new File(TASKS_FILE_NAME);
 		if(!tasksFile.exists()) {
 			tasksFile.createNewFile();
@@ -100,7 +96,7 @@ public class Tasks {
 				continue;
 			}
 			else {
-				System.out.printf("WARNING: Line %d does not match any expected input in the tasks file. It will be ignored.", lineNo);
+				System.out.printf("WARNING: Line %d does not match any expected input in the tasks file. It will be ignored.\n", lineNo);
 			}
 			
 		}
