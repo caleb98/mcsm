@@ -47,6 +47,9 @@ public abstract class Action {
 		register(new CancelScheduleAction());
 		register(new ScheduleInfoAction());
 		
+		register(new EnablePVPAction());
+		register(new DisablePVPAction());
+		
 	
 		areActionsInitialized = true;
 		

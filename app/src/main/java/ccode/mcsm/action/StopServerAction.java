@@ -27,7 +27,7 @@ public class StopServerAction extends Action {
 		}
 		
 		try {
-			manager.getServer().stop();
+			manager.getServer().sendCommand("stop");
 		} catch (IOException e) {
 			sendMessage(manager, executor, "Error stopping server: %s", e.getMessage());
 			return -1;

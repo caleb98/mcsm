@@ -214,25 +214,6 @@ public class MinecraftServer implements Runnable {
 		return serverDirectory.getPath() + File.separator + dir;
 	}
 	
-	// ==========================================
-	// UTILITY METHODS FOR COMMON SERVER COMMANDS
-	// ==========================================
-	public void stop() throws IOException {
-		sendCommand("stop");
-	}
-	
-	public void save() throws IOException {
-		sendCommand("save-all");
-	}
-	
-	public void op(String player) throws IOException {
-		sendCommand("op " + player);
-	}
-	
-	public void deop(String player) throws IOException {
-		sendCommand("deop" + player);
-	}
-	
 }
 
 

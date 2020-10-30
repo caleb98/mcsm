@@ -31,7 +31,7 @@ public class ScheduleAction extends Action {
 	private static final Pattern ARGS_PATTERN = Pattern.compile("([\\d-T:.]+) (\\w+)(.*)");
 	
 	ScheduleAction() {
-		super(ID, Permissions.MODERATOR);
+		super(ID, Permissions.SERVER_OPERATOR);
 	}
 	
 	@Override

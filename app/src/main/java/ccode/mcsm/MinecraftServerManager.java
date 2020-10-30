@@ -195,11 +195,9 @@ public class MinecraftServerManager extends Listener {
 				}
 			}
 		} catch (IOException e) {
-			System.err.println("Error loaded players from usercache.");
-			e.printStackTrace();
+			System.err.printf("Warning: unable to load players from usercache: %s\n", e.getMessage());
 		} catch (JsonException jse) {
-			System.err.println("Error parsing usercache json.");
-			jse.printStackTrace();
+			System.err.printf("Warning: unable to load players from usercache: %s\n", jse.getMessage());
 		}
 	}
 	

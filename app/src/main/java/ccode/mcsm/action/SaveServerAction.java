@@ -23,11 +23,11 @@ public class SaveServerAction extends Action {
 		//Make sure that the server is running
 		if(!manager.getServer().isRunning()) {
 			sendMessage(manager, executor, "Unable to save server: server is not running.");
-			return 0;
+			return -1;
 		}
 		
 		try {
-			manager.getServer().save();
+			manager.getServer().sendCommand("save-all");
 		} catch (IOException e) {
 			sendMessage(manager, executor, "Error saving server: %s", e.getMessage());
 			return -1;

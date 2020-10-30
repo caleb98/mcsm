@@ -1,8 +1,11 @@
 package ccode.mcsm.task;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,9 +23,8 @@ public class Tasks {
 	private static final Pattern TASK_DEFINITION;
 	private static final Pattern TASK_ACTION = Pattern.compile("\t[\\w\\s\\$]+");
 	private static final Pattern EMPTY_LINE = Pattern.compile("[\\s\t]*");
-	private static final Pattern HAS_ARGS = Pattern.compile("\\$\\d");
 	private static final Pattern TASK_ARGS = Pattern.compile("([^\"]\\S*|\".+?\")\\s*");
-	private static final String TASKS_FILE = "tasks";
+	private static final String TASKS_FILE_NAME = "mcsm_tasks";
 	private static final HashMap<String, Task> tasks = new HashMap<>();
 	private static int taskCount = 0;
 	
@@ -39,7 +41,23 @@ public class Tasks {
 	}
 	
 	public static void loadTasks() throws IOException {
-		BufferedReader tasksReader = new BufferedReader(new FileReader(TASKS_FILE));
+		//Grab default tasks from the classpath
+		InputStream defaultTasksInputStream = Tasks.class.getResourceAsStream("/default_tasks");
+		loadTasksFromInputStream(defaultTasksInputStream);
+		
+		//If the custom tasks file doesn't exists, go ahead and create it
+		File tasksFile = new File(TASKS_FILE_NAME);
+		if(!tasksFile.exists()) {
+			tasksFile.createNewFile();
+		}
+		
+		//Load custom tasks
+		InputStream customTasksInputStream = new FileInputStream(tasksFile);
+		loadTasksFromInputStream(customTasksInputStream);
+	}
+	
+	private static void loadTasksFromInputStream(InputStream stream) throws IOException {
+		BufferedReader tasksReader = new BufferedReader(new InputStreamReader(stream));
 		
 		String currentTask = null;
 		String currentPermissions = null;
