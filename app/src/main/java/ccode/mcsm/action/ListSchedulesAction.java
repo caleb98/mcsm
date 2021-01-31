@@ -1,6 +1,9 @@
 package ccode.mcsm.action;
 
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import ccode.mcsm.MinecraftServerManager;
 import ccode.mcsm.permissions.Permissions;
@@ -28,7 +31,9 @@ public class ListSchedulesAction extends Action {
 				Schedule schedule = Scheduler.getSchedule(scheduleID);
 				sendMessage(manager, executor, " > %s: %s do %s (%s)", 
 						scheduleID, 
-						schedule.at, 
+						schedule.at == null ? 
+								LocalTime.now().plus(schedule.future.getDelay(TimeUnit.MILLISECONDS), ChronoUnit.MILLIS).truncatedTo(ChronoUnit.SECONDS)
+								: schedule.at, 
 						schedule.actionID, 
 						schedule.executor.getName());
 			}

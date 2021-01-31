@@ -107,11 +107,16 @@ public class BackupManager {
 	
 	private void checkBackupCount(String worldName) {
 		File worldBackupDir = new File(backupDirectory + File.separator + worldName);
+		
+		//Get backup files
 		File[] backups = worldBackupDir.listFiles((f)->{
 			return f.getName().matches("\\d{4}\\.\\d{2}\\.\\d{2}_\\d{2}\\.\\d{2}\\.\\d{2}\\.zip");
 		});
+		
+		//If we have more backups than allowed, delete oldest.
 		if(backups.length > maxWorldBackups) {
 			LocalDateTime oldest = LocalDateTime.now();
+			
 			for(File backup : backups) {
 				String timestamp = backup.getName().replace(".zip", "");
 				LocalDateTime backupTime = TIMESTAMP_FORMATTER.parse(timestamp, LocalDateTime::from);
@@ -119,6 +124,7 @@ public class BackupManager {
 					oldest = backupTime;
 				}
 			}
+			
 			String oldestFileName = TIMESTAMP_FORMATTER.format(oldest) + ".zip";
 			File oldestBackup = new File(backupDirectory + File.separator + worldName + File.separator + oldestFileName);
 			oldestBackup.delete();

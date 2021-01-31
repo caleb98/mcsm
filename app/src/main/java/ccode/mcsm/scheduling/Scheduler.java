@@ -1,5 +1,11 @@
 package ccode.mcsm.scheduling;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,16 +23,154 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.action.Action;
 
 public class Scheduler {
 	
 	private static final ScheduledThreadPoolExecutor scheduler;
 	private static final HashMap<String, Schedule> scheduledTasks = new HashMap<>();
 	
+	private static final Pattern HOURLY_TASK_TIME = Pattern.compile("\t(\\d{2}:\\d{2}) (\\w+)(.*)");
+	private static final long HOUR_MILLIS = 60 * 60 * 1000;
+	private static final Pattern DAILY_TASK_TIME = Pattern.compile("\t(\\d{2}:\\d{2}:\\d{2}) (\\w+)(.*)");
+	private static final long DAY_MILLIS = HOUR_MILLIS * 24;
+	
 	static {
 		//TODO: way to set scheduler pool size (will we really ever need more than 2 threads, though?)
 		scheduler = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(2);
 		scheduler.setRemoveOnCancelPolicy(true);
+	}
+	
+	public static synchronized void loadSchedules(MinecraftServerManager manager, File schedulesFile) {
+		if(!schedulesFile.exists()) {
+			try {
+				schedulesFile.createNewFile();
+			} catch (IOException e) {
+				System.err.printf("Error creating schedules file: %s\n", e.getMessage());
+				return;
+			}
+		}
+		
+		try(
+				BufferedReader schedulesReader = new BufferedReader(new FileReader(schedulesFile));
+		) {
+			
+			int lineNum = 0;
+			String line;
+			Matcher m;
+		
+			String currentScope = null;
+			int hourlyNum = 0;
+			int dailyNum = 0;
+			int weeklyNum = 0;
+			
+			LocalTime now;
+			
+			while((line = schedulesReader.readLine()) != null) {
+				lineNum++;
+				
+				if(line.matches("Hourly") || line.matches("Daily")) {
+					currentScope = line;
+					continue;
+				}
+				
+				if(line.matches("\\s*")) {
+					continue;
+				}
+				
+				switch(currentScope) {
+					
+				case "Hourly":
+					m = HOURLY_TASK_TIME.matcher(line);
+					if(m.matches()) {
+						String executeTime = m.group(1);
+						String actionID = m.group(2);
+						String args = m.group(3).trim();
+						
+						if(Action.get(actionID) == null) {
+							System.err.printf("Error reading schedules file on line %d: specified action %s does not exist.\n", 
+									lineNum, actionID);
+							continue;
+						}
+						
+						now = LocalTime.now();
+						
+						String fullTime = String.format("%s:%s", now.getHour(), executeTime);
+						LocalTime executeAt = LocalTime.parse(fullTime);
+						
+						if(executeAt.isBefore(now)) {
+							executeAt = executeAt.plusHours(1);
+						}
+						
+						long delayMillis = ChronoUnit.MILLIS.between(now, executeAt);
+						
+						String scheduleID = "Hourly-" + (hourlyNum++);
+						ScheduledFuture<?> future = scheduleAtFixedRate(
+								()->{
+									Action.get(actionID).execute(manager, MinecraftServerManager.MCSM_EXECUTOR, args);
+								}, 
+								delayMillis, 
+								HOUR_MILLIS, 
+								TimeUnit.of(ChronoUnit.MILLIS)
+						);
+						Schedule schedule = new Schedule(scheduleID, future, MinecraftServerManager.MCSM_EXECUTOR, 
+								null, actionID, args);
+						registerSchedule(scheduleID, schedule);
+					}
+					else {
+						System.err.printf("Unable to parse schedule from schedules file on line %d: %s\n", lineNum, line);
+						continue;
+					}
+					break;
+					
+				case "Daily":
+					m = DAILY_TASK_TIME.matcher(line);
+					if(m.matches()) {
+						String executeTime = m.group(1);
+						String actionID = m.group(2);
+						String args = m.group(3).trim();
+						
+						if(Action.get(actionID) == null) {
+							System.err.printf("Error reading schedules file on line %d: specified action %s does not exist.\n", 
+									lineNum, actionID);
+							continue;
+						}
+						
+						now = LocalTime.now();
+						LocalTime executeAt = LocalTime.parse(executeTime);
+						long delayMillis = (ChronoUnit.MILLIS.between(now, executeAt) + DAY_MILLIS) % DAY_MILLIS;
+						
+						String scheduleID = "Daily-" + (dailyNum++);
+						ScheduledFuture<?> future = scheduleAtFixedRate(
+								()->{
+									Action.get(actionID).execute(manager, MinecraftServerManager.MCSM_EXECUTOR, args);
+								},
+								delayMillis,
+								DAY_MILLIS,
+								TimeUnit.of(ChronoUnit.MILLIS)
+						);
+						Schedule schedule = new Schedule(scheduleID, future, MinecraftServerManager.MCSM_EXECUTOR,
+								null, actionID, args);
+						registerSchedule(scheduleID, schedule);
+					}
+					else {
+						System.err.printf("Unable to parse schedule from schedules file on line %d: %s\n", lineNum, line);
+						continue;
+					}
+					break;
+					
+				default:
+					break;
+				
+				}
+			}
+		} catch (IOException e) {
+			System.err.printf("Error reading schedules file: %s\nNo schedules loaded.", e.getMessage());
+		}
 	}
 	
 	public static synchronized void registerSchedule(String scheduleName, Schedule schedule) {

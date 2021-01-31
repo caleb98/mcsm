@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.UUID;
 
 import com.esotericsoftware.jsonbeans.JsonException;
@@ -29,15 +30,18 @@ import ccode.mcsm.mcserver.MinecraftServer;
 import ccode.mcsm.mcserver.event.EventListener;
 import ccode.mcsm.mcserver.event.MinecraftServerEvent;
 import ccode.mcsm.mcserver.event.PlayerAuthEvent;
+import ccode.mcsm.mcserver.event.PlayerLeftEvent;
 import ccode.mcsm.net.message.ActionMessage;
 import ccode.mcsm.net.message.ConnectMessage;
 import ccode.mcsm.net.message.ErrorMessage;
 import ccode.mcsm.net.message.ServerConnectSuccess;
 import ccode.mcsm.permissions.Permissions;
 import ccode.mcsm.permissions.Player;
+import ccode.mcsm.scheduling.Scheduler;
 
 public class MinecraftServerManager extends Listener {
 	
+	private static final String SCHEDULES_FILE = "mcsm_schedules.txt";
 	private static final String PLAYERS_FILE = "mcsm_players.json";
 	private static final String BACKUP_MANAGER_FILE = "mcsm_backup.json";
 	private static final String BACKUP_DEFAULT_DIR = "mcsm_backup";
@@ -53,6 +57,7 @@ public class MinecraftServerManager extends Listener {
 	
 	// uuid -> player
 	private HashMap<String, Player> players = new HashMap<>();
+	
 	private BackupManager backupManager;
 	
 	//Data for remote connection
@@ -73,6 +78,7 @@ public class MinecraftServerManager extends Listener {
 		
 		server = new MinecraftServer(this, serverDirectory, "java", "-Xms1024M", "-Xmx4096M", "-jar", serverJar, "-nogui");
 		
+		Scheduler.loadSchedules(this, new File(SCHEDULES_FILE));
 		loadBackupManager();
 		loadPlayers();
 		
@@ -145,11 +151,33 @@ public class MinecraftServerManager extends Listener {
 		eventProcessor.setDaemon(true);
 		eventProcessor.start();
 		
+		//Listener for adding new players on connect.
 		addListener((event)->{
 			if(event instanceof PlayerAuthEvent) {
 				PlayerAuthEvent auth = (PlayerAuthEvent) event;
 				if(!players.containsKey(auth.uuid)) {
 					players.put(auth.uuid, new Player(auth.player, auth.uuid, Permissions.NO_PERMISSIONS));
+				}
+			}
+			return false;
+		});
+		
+		//Listener for removing existing players on disconnect.
+		addListener((event)->{
+			if(event instanceof PlayerLeftEvent) {
+				PlayerLeftEvent leave = (PlayerLeftEvent) event;
+				Set<String> uuids = players.keySet();
+				String leftUUID = null;
+				
+				for(String uuid : uuids) {
+					if(players.get(uuid).getName().equals(leave.playerName)) {
+						leftUUID = uuid;
+						break;
+					}
+				}
+				
+				if(leftUUID != null) {
+					players.remove(leftUUID);
 				}
 			}
 			return false;
