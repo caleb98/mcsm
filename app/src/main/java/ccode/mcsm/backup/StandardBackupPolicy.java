@@ -26,7 +26,7 @@ public abstract class StandardBackupPolicy implements BackupPolicy {
 			
 			//Find oldest backup
 			LocalDateTime oldest = LocalDateTime.now();
-			for(File backup : getBackupFiles(worldName)) {
+			for(File backup : manager.getBackupFiles(worldName)) {
 				String timestamp = backup.getName().replace(".zip", "");
 				LocalDateTime backupTime = BackupManager.TIMESTAMP_FORMATTER.parse(timestamp, LocalDateTime::from);
 				if(backupTime.isBefore(oldest)) {
@@ -98,15 +98,6 @@ public abstract class StandardBackupPolicy implements BackupPolicy {
 			zos.write(fBytes);
 			zos.closeEntry();
 		}
-	}
-	
-	protected File[] getBackupFiles(String worldName) {
-		File backupDir = new File(manager.getBackupDirectory() + File.separator + worldName);
-		//Get backup files
-		File[] backups = backupDir.listFiles((f)->{
-			return f.getName().matches("\\d{4}\\.\\d{2}\\.\\d{2}_\\d{2}\\.\\d{2}\\.\\d{2}\\.zip");
-		});
-		return backups;
 	}
 	
 }

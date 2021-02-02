@@ -19,7 +19,7 @@ public class MaxCountPolicy extends StandardBackupPolicy {
 	
 	@Override
 	public boolean needsClean(String worldName) {
-		return getBackupFiles(worldName).length > maxBackups;
+		return manager.getBackupFiles(worldName).length > maxBackups;
 	}
 	
 }

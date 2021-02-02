@@ -63,4 +63,13 @@ public class BackupManager {
 		return backupPolicies;
 	}
 	
+	public File[] getBackupFiles(String worldName) {
+		File backupDir = new File(backupDirectory + File.separator + worldName);
+		//Get backup files
+		File[] backups = backupDir.listFiles((f)->{
+			return f.getName().matches("\\d{4}\\.\\d{2}\\.\\d{2}_\\d{2}\\.\\d{2}\\.\\d{2}\\.zip");
+		});
+		return backups;
+	}
+	
 }

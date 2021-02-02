@@ -21,7 +21,7 @@ public class MaxCapacityPolicy extends StandardBackupPolicy {
 	
 	@Override
 	public boolean needsClean(String worldName) {
-		File[] backups = getBackupFiles(worldName);
+		File[] backups = manager.getBackupFiles(worldName);
 		long size = 0;
 		for(File backup : backups) {
 			size += backup.length();
