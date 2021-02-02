@@ -28,7 +28,7 @@ public class ScheduleAction extends Action {
 
 	private static final Pattern DATE_TIME_PATTERN = Pattern.compile("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(?::\\d{2}(?:\\.\\d{1,9})?)?");
 	private static final Pattern TIME_PATTERN = Pattern.compile("\\d{2}:\\d{2}(?::\\d{2}(?:\\.\\d{1,9})?)?");
-	private static final Pattern ARGS_PATTERN = Pattern.compile("([HD])?([\\d-T:.]+) (\\w+)(.*)");
+	private static final Pattern ARGS_PATTERN = Pattern.compile("(!\\w+ )?([HD])?([\\d-T:.]+) (\\w+)(.*)");
 	
 	private static final Pattern HOURLY_TASK_TIME = Pattern.compile("\\d{2}:\\d{2}");
 	private static final long HOUR_MILLIS = 60 * 60 * 1000;
@@ -48,10 +48,13 @@ public class ScheduleAction extends Action {
 			return -1;
 		}
 		
-		String frequency = m.group(1);
-		String time = m.group(2);
-		String actionID = m.group(3);
-		String nextArgs = m.group(4).trim();
+		String scheduleID = m.group(1);
+		String frequency = m.group(2);
+		String time = m.group(3);
+		String actionID = m.group(4);
+		String nextArgs = m.group(5).trim();
+		
+		if(scheduleID != null) scheduleID = scheduleID.trim().replace("!","");
 		
 		if(Action.get(actionID) == null) {
 			sendMessage(manager, executor, "Error in Schedule: provided action does not exist.");
@@ -79,7 +82,9 @@ public class ScheduleAction extends Action {
 				}
 				
 				long delayMillis = ChronoUnit.MILLIS.between(now, executeAt);
-				String scheduleID = "Hourly-" + getScheduleUUID();
+				
+				if(scheduleID == null)
+					scheduleID = "Hourly-" + getScheduleUUID();
 				
 				ScheduledFuture<?> future = Scheduler.scheduleAtFixedRate(
 						()->{
@@ -108,7 +113,9 @@ public class ScheduleAction extends Action {
 				LocalTime now = LocalTime.now();
 				LocalTime executeAt = LocalTime.parse(time);
 				long delayMillis = (ChronoUnit.MILLIS.between(now, executeAt) + DAY_MILLIS) % DAY_MILLIS;
-				String scheduleID = "Daily-" + getScheduleUUID();
+				
+				if(scheduleID == null) 
+					scheduleID = "Daily-" + getScheduleUUID();
 				
 				ScheduledFuture<?> future = Scheduler.scheduleAtFixedRate(
 						()->{
@@ -168,7 +175,9 @@ public class ScheduleAction extends Action {
 				return 0;
 			}
 			
-			String scheduleID = getScheduleUUID();
+			if(scheduleID == null) 
+				scheduleID = getScheduleUUID();
+			
 			ScheduledFuture<?> future = Scheduler.schedule(
 					()->{
 						Action.get(actionID).execute(manager, executor, nextArgs);
