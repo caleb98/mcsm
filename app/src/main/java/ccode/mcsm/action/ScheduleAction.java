@@ -28,7 +28,12 @@ public class ScheduleAction extends Action {
 
 	private static final Pattern DATE_TIME_PATTERN = Pattern.compile("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(?::\\d{2}(?:\\.\\d{1,9})?)?");
 	private static final Pattern TIME_PATTERN = Pattern.compile("\\d{2}:\\d{2}(?::\\d{2}(?:\\.\\d{1,9})?)?");
-	private static final Pattern ARGS_PATTERN = Pattern.compile("([\\d-T:.]+) (\\w+)(.*)");
+	private static final Pattern ARGS_PATTERN = Pattern.compile("([HD])?([\\d-T:.]+) (\\w+)(.*)");
+	
+	private static final Pattern HOURLY_TASK_TIME = Pattern.compile("\\d{2}:\\d{2}");
+	private static final long HOUR_MILLIS = 60 * 60 * 1000;
+	private static final Pattern DAILY_TASK_TIME = Pattern.compile("\\d{2}:\\d{2}:\\d{2}");
+	private static final long DAY_MILLIS = HOUR_MILLIS * 24;
 	
 	ScheduleAction() {
 		super(ID, Permissions.SERVER_OPERATOR);
@@ -43,61 +48,145 @@ public class ScheduleAction extends Action {
 			return -1;
 		}
 		
-		String date = m.group(1);
-		String actionID = m.group(2);
-		String nextArgs = m.group(3).trim();
+		String frequency = m.group(1);
+		String time = m.group(2);
+		String actionID = m.group(3);
+		String nextArgs = m.group(4).trim();
 		
 		if(Action.get(actionID) == null) {
 			sendMessage(manager, executor, "Error in Schedule: provided action does not exist.");
 			return -1;
 		}
 		
-		Matcher dateTimeMatcher = DATE_TIME_PATTERN.matcher(date);
-		Matcher timeMatcher = TIME_PATTERN.matcher(date);
-		LocalDateTime scheduleAt;
-		if(dateTimeMatcher.matches()) {
-			scheduleAt = DateTimeFormatter.ISO_LOCAL_DATE_TIME.parse(date, LocalDateTime::from);
-		}
-		else if(timeMatcher.matches()) {
-			//Only time was given, so we need to see if that time was before or after now
-			LocalTime scheduleTime = DateTimeFormatter.ISO_LOCAL_TIME.parse(date, LocalTime::from);
-			LocalDate today = LocalDate.now();
+		//See if we're scheduling a single action or a repeated action
+		if(frequency != null) {
 			
-			LocalDateTime now = LocalDateTime.now();
-			scheduleAt = scheduleTime.atDate(today);
-			
-			double diff = ChronoUnit.MILLIS.between(now, scheduleAt);
-			
-			//Time already happened today, so schedule for tomorrow
-			if(diff < 0) {
-				scheduleAt = scheduleTime.atDate(today.plusDays(1));
+			//Scheduling a repeated (hourly/daily) action
+			if(frequency.equals("H")) {
+				
+				Matcher freqMatcher = HOURLY_TASK_TIME.matcher(time);
+				if(!freqMatcher.matches()) {
+					sendMessage(manager, executor, "Provided schedule time is incorrect. Expected format: MM:SS");
+					return -1;
+				}
+				
+				LocalTime now = LocalTime.now();
+				String fullTime = String.format("%s:%s", now.getHour(), time);
+				LocalTime executeAt = LocalTime.parse(fullTime);
+				
+				if(executeAt.isBefore(now)) {
+					executeAt = executeAt.plusHours(1);
+				}
+				
+				long delayMillis = ChronoUnit.MILLIS.between(now, executeAt);
+				String scheduleID = "Hourly-" + getScheduleUUID();
+				
+				ScheduledFuture<?> future = Scheduler.scheduleAtFixedRate(
+						()->{
+							Action.get(actionID).execute(manager, executor, nextArgs);
+						}, 
+						delayMillis, 
+						HOUR_MILLIS, 
+						TimeUnit.of(ChronoUnit.MILLIS)
+				);
+				
+				Schedule schedule = new Schedule(scheduleID, future, executor, null, actionID, nextArgs);
+				Scheduler.registerSchedule(scheduleID, schedule);
+				
+				sendMessage(manager, executor, "Registered schedule: %s", scheduleID);
+				return 0;
+				
+			}
+			else if(frequency.equals("D")) {
+				
+				Matcher freqMatcher = DAILY_TASK_TIME.matcher(time);
+				if(!freqMatcher.matches()) {
+					sendMessage(manager, executor, "Provided schedule time is incorrect. Expected format: HH:MM:SS");
+					return -1;
+				}
+				
+				LocalTime now = LocalTime.now();
+				LocalTime executeAt = LocalTime.parse(time);
+				long delayMillis = (ChronoUnit.MILLIS.between(now, executeAt) + DAY_MILLIS) % DAY_MILLIS;
+				String scheduleID = "Daily-" + getScheduleUUID();
+				
+				ScheduledFuture<?> future = Scheduler.scheduleAtFixedRate(
+						()->{
+							Action.get(actionID).execute(manager, executor, nextArgs);
+						}, 
+						delayMillis, 
+						DAY_MILLIS, 
+						TimeUnit.of(ChronoUnit.MILLIS)
+				);
+				
+				Schedule schedule = new Schedule(scheduleID, future, executor, null, actionID, nextArgs);
+				Scheduler.registerSchedule(scheduleID, schedule);
+				
+				sendMessage(manager, executor, "Registered schedule: %s", scheduleID);
+				return 0;
+				
+			}
+			else {
+				sendMessage(manager, executor, "Error processing schedule frequency.");
+				return -1;
 			}
 		}
 		else {
-			sendMessage(manager, executor, "Error in Schedule: provided date/time %s is not a valid format", date);
-			return -1;
-		}
+			
+			//Scheduling a one-off action
+			Matcher dateTimeMatcher = DATE_TIME_PATTERN.matcher(time);
+			Matcher timeMatcher = TIME_PATTERN.matcher(time);
+			LocalDateTime scheduleAt;
+			
+			if(dateTimeMatcher.matches()) {
+				scheduleAt = DateTimeFormatter.ISO_LOCAL_DATE_TIME.parse(time, LocalDateTime::from);
+			}
+			else if(timeMatcher.matches()) {
+				//Only time was given, so we need to see if that time was before or after now
+				LocalTime scheduleTime = DateTimeFormatter.ISO_LOCAL_TIME.parse(time, LocalTime::from);
+				LocalDate today = LocalDate.now();
+				
+				LocalDateTime now = LocalDateTime.now();
+				scheduleAt = scheduleTime.atDate(today);
+				
+				double diff = ChronoUnit.MILLIS.between(now, scheduleAt);
+				
+				//Time already happened today, so schedule for tomorrow
+				if(diff < 0) {
+					scheduleAt = scheduleTime.atDate(today.plusDays(1));
+				}
+			}
+			else {
+				sendMessage(manager, executor, "Error in Schedule: provided date/time %s is not a valid format", time);
+				return -1;
+			}
 
-		long delayMillis = ChronoUnit.MILLIS.between(LocalDateTime.now(), scheduleAt);
-		
-		if(delayMillis < 0) {
-			sendMessage(manager, executor, "WARNING: Time for scheduled action has already passed. It will not be executed.");
+			long delayMillis = ChronoUnit.MILLIS.between(LocalDateTime.now(), scheduleAt);
+			
+			if(delayMillis < 0) {
+				sendMessage(manager, executor, "WARNING: Time for scheduled action has already passed. It will not be executed.");
+				return 0;
+			}
+			
+			String scheduleID = getScheduleUUID();
+			ScheduledFuture<?> future = Scheduler.schedule(
+					()->{
+						Action.get(actionID).execute(manager, executor, nextArgs);
+					}, 
+					delayMillis, 
+					TimeUnit.of(ChronoUnit.MILLIS)
+			);
+			Schedule schedule = new Schedule(scheduleID, future, executor, scheduleAt, actionID, nextArgs);
+			Scheduler.registerSchedule(scheduleID, schedule);
+			sendMessage(manager, executor, "Registered schedule: %s", scheduleID);
+			
 			return 0;
+			
 		}
-		
-		String scheduleID = UUID.randomUUID().toString().substring(0, 5);
-		ScheduledFuture<?> future = Scheduler.schedule(
-				()->{
-					Action.get(actionID).execute(manager, executor, nextArgs);
-				}, 
-				delayMillis, 
-				TimeUnit.of(ChronoUnit.MILLIS)
-		);
-		Schedule schedule = new Schedule(scheduleID, future, executor, scheduleAt, actionID, nextArgs);
-		Scheduler.registerSchedule(scheduleID, schedule);
-		sendMessage(manager, executor, "Registered schedule: %s", scheduleID);
-		
-		return 0;
+	}
+	
+	private static String getScheduleUUID() {
+		return UUID.randomUUID().toString().substring(0, 5);
 	}
 
 }
