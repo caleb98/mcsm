@@ -32,7 +32,7 @@ public class CancelScheduleAction extends Action {
 		}
 		
 		Scheduler.cancelSchedule(args);
-		sendMessage(manager, executor, "Canceled schedule %s", args);
+		sendMessage(manager, executor, "Canceled schedule \"%s\"", args);
 		return 0;
 	}
 	

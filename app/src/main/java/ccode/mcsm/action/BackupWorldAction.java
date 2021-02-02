@@ -28,6 +28,8 @@ public class BackupWorldAction extends Action {
 			return -1;
 		}
 		
+		sendMessage(manager, executor, "Backup successful.");
+		
 		return 0;
 	}
 	

@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.UUID;
 
 import com.esotericsoftware.jsonbeans.JsonException;
@@ -30,7 +29,6 @@ import ccode.mcsm.mcserver.MinecraftServer;
 import ccode.mcsm.mcserver.event.EventListener;
 import ccode.mcsm.mcserver.event.MinecraftServerEvent;
 import ccode.mcsm.mcserver.event.PlayerAuthEvent;
-import ccode.mcsm.mcserver.event.PlayerLeftEvent;
 import ccode.mcsm.net.message.ActionMessage;
 import ccode.mcsm.net.message.ConnectMessage;
 import ccode.mcsm.net.message.ErrorMessage;
@@ -157,27 +155,6 @@ public class MinecraftServerManager extends Listener {
 				PlayerAuthEvent auth = (PlayerAuthEvent) event;
 				if(!players.containsKey(auth.uuid)) {
 					players.put(auth.uuid, new Player(auth.player, auth.uuid, Permissions.NO_PERMISSIONS));
-				}
-			}
-			return false;
-		});
-		
-		//Listener for removing existing players on disconnect.
-		addListener((event)->{
-			if(event instanceof PlayerLeftEvent) {
-				PlayerLeftEvent leave = (PlayerLeftEvent) event;
-				Set<String> uuids = players.keySet();
-				String leftUUID = null;
-				
-				for(String uuid : uuids) {
-					if(players.get(uuid).getName().equals(leave.playerName)) {
-						leftUUID = uuid;
-						break;
-					}
-				}
-				
-				if(leftUUID != null) {
-					players.remove(leftUUID);
 				}
 			}
 			return false;
