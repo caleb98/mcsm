@@ -31,7 +31,7 @@ public class ScheduleInfoAction extends Action {
 		
 		if(schedule.at == null) {
 			long until = schedule.future.getDelay(TimeUnit.of(ChronoUnit.MILLIS));
-			sendMessage(manager, executor, "at: %s", 
+			sendMessage(manager, executor, "next: %s", 
 					LocalTime.now().plus(until, ChronoUnit.MILLIS).truncatedTo(ChronoUnit.SECONDS));
 		}
 		else {

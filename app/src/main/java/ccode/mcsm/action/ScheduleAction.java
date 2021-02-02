@@ -26,9 +26,10 @@ public class ScheduleAction extends Action {
 
 	public static final String ID = "Schedule";
 
+	public static final Pattern ARGUMENT_PATTERN = Pattern.compile("(\\w+\\s+)?([HD])?([\\d-T:.]+) (\\w+)(.*)");
+	
 	private static final Pattern DATE_TIME_PATTERN = Pattern.compile("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(?::\\d{2}(?:\\.\\d{1,9})?)?");
 	private static final Pattern TIME_PATTERN = Pattern.compile("\\d{2}:\\d{2}(?::\\d{2}(?:\\.\\d{1,9})?)?");
-	private static final Pattern ARGS_PATTERN = Pattern.compile("(!\\w+ )?([HD])?([\\d-T:.]+) (\\w+)(.*)");
 	
 	private static final Pattern HOURLY_TASK_TIME = Pattern.compile("\\d{2}:\\d{2}");
 	private static final long HOUR_MILLIS = 60 * 60 * 1000;
@@ -41,7 +42,7 @@ public class ScheduleAction extends Action {
 	
 	@Override
 	public int execute(MinecraftServerManager manager, Player executor, String args) {
-		Matcher m = ARGS_PATTERN.matcher(args);
+		Matcher m = ARGUMENT_PATTERN.matcher(args);
 		
 		if(!m.matches()) {
 			sendMessage(manager, executor, "Error in Schedule: provided arguments don't match expected input.");
@@ -54,7 +55,7 @@ public class ScheduleAction extends Action {
 		String actionID = m.group(4);
 		String nextArgs = m.group(5).trim();
 		
-		if(scheduleID != null) scheduleID = scheduleID.trim().replace("!","");
+		if(scheduleID != null) scheduleID = scheduleID.trim();
 		
 		if(Action.get(actionID) == null) {
 			sendMessage(manager, executor, "Error in Schedule: provided action does not exist.");

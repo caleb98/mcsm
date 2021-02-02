@@ -19,7 +19,7 @@ public class DelayAction extends Action {
 
 	public static final String ID = "Delay";
 	
-	private static final Pattern delayPattern = Pattern.compile("(?:(\\d+)h)?(?:(\\d+)m)?(?:(\\d+)s)");
+	public static final Pattern ARGUMENT_PATTERN = Pattern.compile("(?:(\\d+)h)?(?:(\\d+)m)?(?:(\\d+)s)");
 	
 	DelayAction() {
 		super(ID, Permissions.MODERATOR);
@@ -27,7 +27,7 @@ public class DelayAction extends Action {
 	
 	@Override
 	public int execute(MinecraftServerManager manager, Player executor, String delay) {
-		Matcher m = delayPattern.matcher(delay);
+		Matcher m = ARGUMENT_PATTERN.matcher(delay);
 		
 		if(!m.find()) {
 			sendMessage(manager, executor, "Error in Delay: provided arguments don't match expected input.");
