@@ -53,6 +53,7 @@ public abstract class Action {
 		
 		register(new SetWorldAction());
 		register(new SetSeedAction());
+		register(new ListWorldsAction());
 	
 		areActionsInitialized = true;
 		

@@ -259,6 +259,10 @@ public class MinecraftServerManager extends Listener {
 		return players.get(uuid);
 	}
 	
+	public File getServerDirectory() {
+		return serverDirectory;
+	}
+	
 	public void addEvent(MinecraftServerEvent event) {
 		eventQueue.add(event);
 	}
