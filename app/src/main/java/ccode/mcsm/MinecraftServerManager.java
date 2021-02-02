@@ -25,6 +25,9 @@ import com.google.gson.reflect.TypeToken;
 
 import ccode.mcsm.action.Action;
 import ccode.mcsm.backup.BackupManager;
+import ccode.mcsm.backup.BackupPolicy;
+import ccode.mcsm.backup.NoLimitPolicy;
+import ccode.mcsm.backup.StandardBackupPolicy;
 import ccode.mcsm.mcserver.MinecraftServer;
 import ccode.mcsm.mcserver.event.EventListener;
 import ccode.mcsm.mcserver.event.MinecraftServerEvent;
@@ -43,7 +46,7 @@ public class MinecraftServerManager extends Listener {
 	private static final String PLAYERS_FILE = "mcsm_players.json";
 	private static final String BACKUP_MANAGER_FILE = "mcsm_backup.json";
 	private static final String BACKUP_DEFAULT_DIR = "mcsm_backup";
-	private static final int BACKUP_DEFAULT_MAX = 10;
+	private static final int BACKUP_DEFAULT_MAX = -1; //No limit
 	
 	public static final Player MCSM_EXECUTOR = new Player("MCSM-EXECUTOR", UUID.randomUUID().toString(), Permissions.MCSM_EXECUTOR);
 
@@ -175,6 +178,18 @@ public class MinecraftServerManager extends Listener {
 			backupManager = Json.fromJson(backupReader, BackupManager.class);
 			backupManager.setServerDir(serverDirectory);
 			backupReader.close();
+			
+			//Link backup manager to policies; add NoLimitPolicy for worlds which had errors parsing
+			HashMap<String, BackupPolicy> policies = backupManager.getPolicies();
+			for(String world : policies.keySet()) {
+				BackupPolicy policy = policies.get(world);
+				if(policy == null) {
+					policies.put(world, new NoLimitPolicy(backupManager));
+				}
+				else if(policy instanceof StandardBackupPolicy) {
+					((StandardBackupPolicy) policy).setBackupManager(backupManager);
+				}
+			}
 		} catch (IOException e) {
 			System.err.printf("Error reading backup manager file: %s\n", e.getMessage());
 			backupManager = new BackupManager(serverDirectory, BACKUP_DEFAULT_DIR, BACKUP_DEFAULT_MAX);

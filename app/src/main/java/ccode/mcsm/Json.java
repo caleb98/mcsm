@@ -5,11 +5,18 @@ import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Type;
 
+import com.esotericsoftware.jsonbeans.JsonException;
 import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
@@ -18,9 +25,75 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
+import ccode.mcsm.backup.BackupPolicy;
+import ccode.mcsm.backup.MaxCapacityPolicy;
+import ccode.mcsm.backup.MaxCountPolicy;
+import ccode.mcsm.backup.NoLimitPolicy;
+
 public class Json {
 
-	private static final Gson gson = new Gson();
+	private static final Gson gson;
+	
+	static {
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		gsonBuilder.registerTypeAdapter(BackupPolicy.class, new BackupPolicySerializer());
+		gson = gsonBuilder.create();
+	}
+	
+	private static class BackupPolicySerializer implements JsonSerializer<BackupPolicy>, JsonDeserializer<BackupPolicy> {
+		@Override
+		public JsonElement serialize(BackupPolicy src, Type typeOfSrc, JsonSerializationContext context) {
+			JsonObject policy = new JsonObject();
+			if(src instanceof NoLimitPolicy) {
+				policy.addProperty("type", NoLimitPolicy.class.getSimpleName());
+			}
+			else if(src instanceof MaxCountPolicy) {
+				MaxCountPolicy maxCountPolicy = (MaxCountPolicy) src;
+				
+				policy.addProperty("type", MaxCountPolicy.class.getSimpleName());
+				policy.addProperty("maxBackups", maxCountPolicy.getMaxBackups());
+			}
+			else if(src instanceof MaxCapacityPolicy) {
+				MaxCapacityPolicy maxCapacityPolicy = (MaxCapacityPolicy) src;
+				
+				policy.addProperty("type", MaxCapacityPolicy.class.getSimpleName());
+				policy.addProperty("maxBytes", maxCapacityPolicy.getMaxBytes());
+			}
+			else {
+				throw new JsonException("Unable to serialize BackupPolicy of type " + src.getClass());
+			}
+			return policy;
+		}
+
+		@Override
+		public BackupPolicy deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+				throws JsonParseException {
+			
+			JsonObject policyJson = json.getAsJsonObject();
+			BackupPolicy policy;
+			
+			if(!policyJson.has("type")) {
+				throw new JsonParseException("No type listed for BackupPolicy.");
+			}
+			
+			String type = policyJson.get("type").getAsString();
+			
+			if(type.equals(NoLimitPolicy.class.getSimpleName())) {
+				policy = new NoLimitPolicy(null);
+			}
+			else if(type.equals(MaxCountPolicy.class.getSimpleName())) {
+				policy = new MaxCountPolicy(null, policyJson.get("maxBackups").getAsInt());
+			}
+			else if(type.equals(MaxCapacityPolicy.class.getSimpleName())) {
+				policy = new MaxCapacityPolicy(null, policyJson.get("maxBytes").getAsLong());
+			}
+			else {
+				throw new JsonException("Invalid backup policy type.");
+			}
+			
+			return policy;
+		}
+	}
 
 	/**
 	 * @return
