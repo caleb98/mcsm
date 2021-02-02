@@ -66,7 +66,6 @@ public class Scheduler {
 			String currentScope = null;
 			int hourlyNum = 0;
 			int dailyNum = 0;
-			int weeklyNum = 0;
 			
 			LocalTime now;
 			
