@@ -29,12 +29,14 @@ public abstract class Action {
 		register(new StartServerAction());
 		register(new SaveServerAction());
 		register(new StopServerAction());
+		register(new SendCommandAction());
+		register(new SetPropertyAction());
+		
 		register(new BackupWorldAction());
 		register(new ListBackupPoliciesAction());
 		register(new SetBackupPolicyAction());
 		register(new ListBackupsAction());
-		register(new SendCommandAction());
-		register(new SetPropertyAction());
+		register(new RestoreBackupAction());
 		
 		register(new TaskAction());
 		register(new ListActionsAction());
