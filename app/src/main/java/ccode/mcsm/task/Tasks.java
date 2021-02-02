@@ -158,15 +158,9 @@ public class Tasks {
 					//Get action arguments
 					String arguments = fullCommand.substring(actionID.length()).trim();
 					String replString;
-					String next;
-					int i = 0;
-					while(i < taskArgs.size()) {
+					for(int i = 0; i < taskArgs.size(); i++) {
 						replString = String.format("\\$%d", i);
-						next = arguments.replaceAll(replString, taskArgs.get(i));
-						if(!next.equals(arguments))
-							arguments = next;
-						else 
-							break;
+						arguments = arguments.replaceAll(replString, taskArgs.get(i));
 					}
 					
 					if(action != null) {

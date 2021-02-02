@@ -51,6 +51,8 @@ public abstract class Action {
 		register(new EnablePVPAction());
 		register(new DisablePVPAction());
 		
+		register(new SetWorldAction());
+		register(new SetSeedAction());
 	
 		areActionsInitialized = true;
 		
