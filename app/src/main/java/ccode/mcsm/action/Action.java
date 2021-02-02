@@ -30,6 +30,7 @@ public abstract class Action {
 		register(new SaveServerAction());
 		register(new StopServerAction());
 		register(new BackupWorldAction());
+		register(new ListBackupPoliciesAction());
 		register(new SendCommandAction());
 		register(new SetPropertyAction());
 		
