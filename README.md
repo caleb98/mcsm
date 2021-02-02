@@ -6,11 +6,11 @@ Currently still very much WIP, but the final feature set will include:
 - **Task-Based Server Management** *(Mostly Implemented)*
 - **In-Game Chat Connectivity** *(Mostly Implemented)*
 - **User Permissions** *(Mostly Implemented)*
-- **Flexible Task Scheduling** *(Partially Implemented)*
+- **Flexible Task Scheduling** *(Mostly Implemented)*
 - **Remote MCSM Connection** *(Barely Implemented)*
-- **World Management** *(Unimplemented)*
+- **World Management** *(Partially Implemented)*
 - **Datapack Management** *(Unimplemented)*
-- **Easy Server Backups** *(Unimplemented)*
+- **Easy Server Backups** *(Partially Implemented)*
 - **Plugins System** *(Unimplemented)*
 - **Modded Server Support** *(Unimplemented/Untested!)*
 
