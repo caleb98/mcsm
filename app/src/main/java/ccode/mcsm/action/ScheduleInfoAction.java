@@ -1,5 +1,9 @@
 package ccode.mcsm.action;
 
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.TimeUnit;
+
 import ccode.mcsm.MinecraftServerManager;
 import ccode.mcsm.permissions.Permissions;
 import ccode.mcsm.permissions.Player;
@@ -24,7 +28,16 @@ public class ScheduleInfoAction extends Action {
 		
 		sendMessage(manager, executor, "id: %s", schedule.id);
 		sendMessage(manager, executor, "executor: %s", schedule.executor.getName());
-		sendMessage(manager, executor, "at: %s", schedule.at);
+		
+		if(schedule.at == null) {
+			long until = schedule.future.getDelay(TimeUnit.of(ChronoUnit.MILLIS));
+			sendMessage(manager, executor, "at: %s", 
+					LocalTime.now().plus(until, ChronoUnit.MILLIS).truncatedTo(ChronoUnit.SECONDS));
+		}
+		else {
+			sendMessage(manager, executor, "at: %s", schedule.at);
+		}
+		
 		sendMessage(manager, executor, "action: %s", schedule.actionID);
 		sendMessage(manager, executor, "arguments: %s", schedule.args);
 		
