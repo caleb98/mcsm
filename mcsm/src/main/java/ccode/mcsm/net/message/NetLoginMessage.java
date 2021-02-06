@@ -3,17 +3,17 @@ package ccode.mcsm.net.message;
 public class NetLoginMessage {
 	
 	public final String playerName;
-	public final String passwordHash;
+	public final String password;
 	
 	@SuppressWarnings("unused")
 	private NetLoginMessage() {
 		playerName = null;
-		passwordHash = null;
+		password = null;
 	}
 	
-	public NetLoginMessage(String playerName, String passwordHash) {
+	public NetLoginMessage(String playerName, String password) {
 		this.playerName = playerName;
-		this.passwordHash = passwordHash;
+		this.password = password;
 	}
 
 }

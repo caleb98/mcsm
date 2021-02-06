@@ -19,6 +19,7 @@ import java.util.UUID;
 
 import com.esotericsoftware.jsonbeans.JsonException;
 import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.FrameworkMessage.KeepAlive;
 import com.esotericsoftware.kryonet.Listener;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -34,9 +35,11 @@ import ccode.mcsm.mcserver.MinecraftServer;
 import ccode.mcsm.mcserver.event.EventListener;
 import ccode.mcsm.mcserver.event.MinecraftServerEvent;
 import ccode.mcsm.mcserver.event.PlayerAuthEvent;
+import ccode.mcsm.mcserver.event.PlayerChatEvent;
 import ccode.mcsm.net.message.NetErrorMessage;
 import ccode.mcsm.net.message.NetLoginMessage;
 import ccode.mcsm.net.message.NetLoginSuccessMessage;
+import ccode.mcsm.net.message.NetMinecraftChatMessage;
 import ccode.mcsm.permissions.Hash;
 import ccode.mcsm.permissions.Permissions;
 import ccode.mcsm.permissions.Player;
@@ -160,6 +163,17 @@ public class MinecraftServerManager extends Listener {
 				PlayerAuthEvent auth = (PlayerAuthEvent) event;
 				if(!players.containsKey(auth.uuid)) {
 					players.put(auth.uuid, new Player(auth.player, auth.uuid, Permissions.NO_PERMISSIONS));
+				}
+			}
+			return false;
+		});
+		
+		addListener((event)->{
+			if(event instanceof PlayerChatEvent) {
+				PlayerChatEvent chat = (PlayerChatEvent) event;
+				NetMinecraftChatMessage message = new NetMinecraftChatMessage(chat.timestamp, chat.player, chat.message);
+				for(Connection conn : connections.keySet()) {
+					conn.sendUDP(message);
 				}
 			}
 			return false;
@@ -319,8 +333,10 @@ public class MinecraftServerManager extends Listener {
 	public void received(Connection connection, Object object) {
 		
 		//TODO: remove this code for release
-		String json = Json.toJson(object);
-		System.out.println(json);
+		if(!(object instanceof KeepAlive)) {
+			String json = Json.toJson(object);
+			System.out.println(object.getClass().getSimpleName() + ": " + json);
+		}
 		
 		if(object instanceof NetLoginMessage) {
 			
@@ -335,7 +351,7 @@ public class MinecraftServerManager extends Listener {
 			
 			//Check the password
 			try {
-				if(!Hash.verify(login.passwordHash, player.getPasswordHash())) {
+				if(!Hash.verify(login.password, player.getPasswordHash())) {
 					connection.sendUDP(new NetErrorMessage("Invalid Login", "Invalid login credentials. Please try again."));
 					return;
 				}
@@ -348,6 +364,7 @@ public class MinecraftServerManager extends Listener {
 			
 			//Login success
 			connection.sendUDP(new NetLoginSuccessMessage(login.playerName));
+			connections.put(connection, player);
 			
 		}
 		

@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 public class AchievementGetEvent extends MinecraftServerEvent {
 
 	public static final String ID = "AchievementGet";
-	public static final Pattern MATCHER = Pattern.compile("\\[(\\d\\d:\\d\\d:\\d\\d)\\] \\[Server thread\\/INFO\\]: (\\w+) has made the advancement \\[(.*)\\]");
+	public static final Pattern MATCHER = Pattern.compile("^\\[(\\d\\d:\\d\\d:\\d\\d)\\] \\[Server thread\\/INFO\\]: (\\w+) has made the advancement \\[(.*)\\]");
 	
 	public final String playerName;
 	public final String achievement;

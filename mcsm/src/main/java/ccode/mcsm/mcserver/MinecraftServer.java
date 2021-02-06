@@ -120,13 +120,13 @@ public class MinecraftServer implements Runnable {
 				String next;
 				
 				while(stdout.ready() && (next = stdout.readLine()) != null) {
-					System.out.println("[MinecraftServer]: " + next);
+					System.out.println(next);
 					checkLineForEvent(next);
 					checkLineForCommand(next);
 				}
 				
 				while(stderr.ready() && (next = stderr.readLine()) != null) {
-					System.err.println("[MinecraftServer]: " + next);
+					System.err.println(next);
 					checkLineForEvent(next);
 				}
 				

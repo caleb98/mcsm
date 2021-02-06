@@ -10,6 +10,7 @@ import ccode.mcsm.Json;
 import ccode.mcsm.net.KryoCreator;
 import ccode.mcsm.net.message.NetErrorMessage;
 import ccode.mcsm.net.message.NetLoginSuccessMessage;
+import ccode.mcsm.net.message.NetMinecraftChatMessage;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -20,6 +21,7 @@ public class Remote extends Listener {
 	private boolean isConnecting = false;
 	
 	private ConnectStage connectStage;
+	private RemoteStage remoteStage;
 	
 	public Remote() {
 		client = KryoCreator.createClient();
@@ -89,11 +91,17 @@ public class Remote extends Listener {
 		}
 		else if(object instanceof NetLoginSuccessMessage) {
 			Platform.runLater(()->{
-				RemoteStage remoteStage = new RemoteStage(this);
+				remoteStage = new RemoteStage(this);
 				remoteStage.show();
 				
 				connectStage.close();
 				connectStage = null;
+			});
+		}
+		else if(object instanceof NetMinecraftChatMessage) {
+			Platform.runLater(()->{
+				NetMinecraftChatMessage message = (NetMinecraftChatMessage) object;
+				remoteStage.addChatMessage(message);
 			});
 		}
 		

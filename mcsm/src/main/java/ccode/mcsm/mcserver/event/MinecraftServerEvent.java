@@ -61,6 +61,14 @@ public abstract class MinecraftServerEvent {
 			return new WorldSavedEvent(m.group(1));
 		});
 		
+		eventProducers.add((line)->{
+			Matcher m = PlayerChatEvent.MATCHER.matcher(line);
+			if(!m.matches()) {
+				return null;
+			}
+			return new PlayerChatEvent(m.group(1), m.group(2), m.group(3));
+		});
+		
 		events = Collections.unmodifiableList(eventProducers);
 	}
 	
