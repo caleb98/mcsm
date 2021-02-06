@@ -16,8 +16,6 @@ import java.util.Scanner;
 import java.util.UUID;
 
 import com.esotericsoftware.jsonbeans.JsonException;
-import com.esotericsoftware.kryonet.Connection;
-import com.esotericsoftware.kryonet.Listener;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -32,15 +30,11 @@ import ccode.mcsm.mcserver.MinecraftServer;
 import ccode.mcsm.mcserver.event.EventListener;
 import ccode.mcsm.mcserver.event.MinecraftServerEvent;
 import ccode.mcsm.mcserver.event.PlayerAuthEvent;
-import ccode.mcsm.net.message.ActionMessage;
-import ccode.mcsm.net.message.ConnectMessage;
-import ccode.mcsm.net.message.ErrorMessage;
-import ccode.mcsm.net.message.ServerConnectSuccess;
 import ccode.mcsm.permissions.Permissions;
 import ccode.mcsm.permissions.Player;
 import ccode.mcsm.scheduling.Scheduler;
 
-public class MinecraftServerManager extends Listener {
+public class MinecraftServerManager  {
 	
 	private static final String SCHEDULES_FILE = "mcsm_schedules.txt";
 	private static final String PLAYERS_FILE = "mcsm_players.json";
@@ -51,7 +45,10 @@ public class MinecraftServerManager extends Listener {
 	public static final Player MCSM_EXECUTOR = new Player("MCSM-EXECUTOR", UUID.randomUUID().toString(), Permissions.MCSM_EXECUTOR);
 
 	private File serverDirectory;
+	private String serverJar;
 	private MinecraftServer server;
+	private BackupManager backupManager;
+	
 	private LinkedList<MinecraftServerEvent> eventQueue = new LinkedList<>();
 	private ArrayList<EventListener> eventListeners = new ArrayList<>();
 	private Object eventListenersLock = new Object();
@@ -59,15 +56,8 @@ public class MinecraftServerManager extends Listener {
 	// uuid -> player
 	private HashMap<String, Player> players = new HashMap<>();
 	
-	private BackupManager backupManager;
-	
-	//Data for remote connection
-	private String password;
-	private ArrayList<Connection> verified = new ArrayList<>();
-	private HashMap<Connection, String> usernames = new HashMap<>();
-	
 	public MinecraftServerManager(String serverJar) {
-		this.password = "password"; //TODO: set this up properly
+		this.serverJar = serverJar;
 		
 		try {
 			serverDirectory = new File(serverJar).getCanonicalFile().getParentFile();
@@ -75,8 +65,10 @@ public class MinecraftServerManager extends Listener {
 			// TODO Handle this more gracefully
 			System.err.printf("Error grabbing server directory: %s\n", e.getMessage());
 			System.exit(-1);
-		}
-		
+		}		
+	}
+	
+	public void start() {
 		server = new MinecraftServer(this, serverDirectory, "java", "-Xms1024M", "-Xmx4096M", "-jar", serverJar, "-nogui");
 		
 		Scheduler.loadSchedules(this, new File(SCHEDULES_FILE));
@@ -162,7 +154,6 @@ public class MinecraftServerManager extends Listener {
 			}
 			return false;
 		});
-		
 	}
 	
 	private void exit(int code) {
@@ -288,70 +279,12 @@ public class MinecraftServerManager extends Listener {
 		}
 	}
 	
-	@Override
-	public void disconnected(Connection connection) {
-		if(verified.contains(connection)) {
-			System.out.printf("%s disconnected.\n", usernames.get(connection));
-			verified.remove(connection);
-			usernames.remove(connection);
-		}
-	}
-	
-	@Override
-	public void received(Connection connection, Object object) {
-		
-		//Check for a new connection first
-		if(object instanceof ConnectMessage) {
-			
-			//Check the password and add this connection to verified
-			ConnectMessage m = (ConnectMessage) object;
-			if(m.password.equals(password)) {
-				verified.add(connection);
-				usernames.put(connection, m.username);
-				System.out.printf("%s (%s) connected!\n", m.username, connection.getRemoteAddressTCP().getAddress());
-				connection.sendTCP(new ServerConnectSuccess());
-			}
-			//Otherwise, disconnect
-			else {
-				connection.sendTCP(new ErrorMessage("Incorrect Password"));
-				connection.close();
-			}
-			
-			return;
-		}
-		
-		//Not a connect message, so check to make sure that the connection is verified
-		if(!verified.contains(connection)) {
-			System.out.printf("Warning! Received non-connection message from unverified connection %s.\n", connection.getRemoteAddressTCP().getAddress());
-			connection.close();
-			return;
-		}
-		
-		//Connection is verified, so continue processing the message
-		if(object instanceof ActionMessage) {
-			ActionMessage message = (ActionMessage) object;
-			//TODO: Executing messages from remote
-			//Action.get(message.action).execute(this);
-			
-			connection.sendTCP(new ErrorMessage("REMOTE CURRENTLY DISABLED!"));
-		}
-		
-	}
-	
 	public BackupManager getBackupManager() {
 		return backupManager;
 	}
 	
 	public MinecraftServer getServer() {
 		return server;
-	}
-	
-	public ArrayList<Connection> getVerifiedConnections() {
-		return verified;
-	}
-	
-	public HashMap<Connection, String> getUsernames() {
-		return usernames;
 	}
 	
 	private String serverDir(String dir) {

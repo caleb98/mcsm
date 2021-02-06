@@ -2,10 +2,7 @@ package ccode.mcsm;
 
 import java.io.IOException;
 
-import com.esotericsoftware.kryonet.Server;
-
 import ccode.mcsm.action.Action;
-import ccode.mcsm.net.KryoCreator;
 import ccode.mcsm.task.Tasks;
 
 public class MCSMStart {
@@ -26,16 +23,8 @@ public class MCSMStart {
 			System.err.printf("Unable to load tasks: %s\n", e.getMessage());
 		}
 		
-		Server server = KryoCreator.createServer();
-		MinecraftServerManager listener = new MinecraftServerManager(args[0]);
-		
-		try {
-			server.addListener(listener);
-			server.start();
-			server.bind(44434, 44434);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		MinecraftServerManager mcsm = new MinecraftServerManager(args[0]);
+		mcsm.start();
 		
 	}
 }
