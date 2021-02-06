@@ -16,6 +16,8 @@ import java.util.Scanner;
 import java.util.UUID;
 
 import com.esotericsoftware.jsonbeans.JsonException;
+import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.Listener;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -34,13 +36,12 @@ import ccode.mcsm.permissions.Permissions;
 import ccode.mcsm.permissions.Player;
 import ccode.mcsm.scheduling.Scheduler;
 
-public class MinecraftServerManager  {
+public class MinecraftServerManager extends Listener {
 	
 	private static final String SCHEDULES_FILE = "mcsm_schedules.txt";
 	private static final String PLAYERS_FILE = "mcsm_players.json";
 	private static final String BACKUP_MANAGER_FILE = "mcsm_backup.json";
 	private static final String BACKUP_DEFAULT_DIR = "mcsm_backup";
-	private static final int BACKUP_DEFAULT_MAX = -1; //No limit
 	
 	public static final Player MCSM_EXECUTOR = new Player("MCSM-EXECUTOR", UUID.randomUUID().toString(), Permissions.MCSM_EXECUTOR);
 
@@ -55,6 +56,10 @@ public class MinecraftServerManager  {
 	
 	// uuid -> player
 	private HashMap<String, Player> players = new HashMap<>();
+	
+	//Remote Data
+	private HashMap<Connection, Player> verifiedConnections = new HashMap<>();
+	private ArrayList<Connection> connections = new ArrayList<>();
 	
 	public MinecraftServerManager(String serverJar) {
 		this.serverJar = serverJar;
@@ -183,7 +188,7 @@ public class MinecraftServerManager  {
 			}
 		} catch (IOException e) {
 			System.err.printf("Error reading backup manager file: %s\n", e.getMessage());
-			backupManager = new BackupManager(serverDirectory, BACKUP_DEFAULT_DIR, BACKUP_DEFAULT_MAX);
+			backupManager = new BackupManager(serverDirectory, BACKUP_DEFAULT_DIR);
 		}
 	}
 	
@@ -289,6 +294,31 @@ public class MinecraftServerManager  {
 	
 	private String serverDir(String dir) {
 		return serverDirectory.getPath() + File .separator + dir;
+	}
+	
+	/*
+	 * REMOTE CONNECTION CODE
+	 */
+	
+	@Override
+	public void connected(Connection connection) {
+		connections.add(connection);
+	}
+	
+	@Override
+	public void disconnected(Connection connection) {
+		connections.remove(connection);
+		verifiedConnections.remove(connection);
+	}
+	
+	@Override
+	public void received(Connection connection, Object object) {
+		
+	}
+	
+	@Override
+	public void idle(Connection connection) {
+		
 	}
 	
 }

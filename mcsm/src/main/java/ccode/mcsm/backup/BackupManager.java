@@ -22,7 +22,7 @@ public class BackupManager {
 	//worldName -> BackupPolicy
 	private HashMap<String, BackupPolicy> backupPolicies = new HashMap<>();
 	
-	public BackupManager(File serverDir, String backupDirectory, int maxWorldBackups) {
+	public BackupManager(File serverDir, String backupDirectory) {
 		this.serverDir = serverDir;
 		this.backupDirectory = backupDirectory;
 	}
