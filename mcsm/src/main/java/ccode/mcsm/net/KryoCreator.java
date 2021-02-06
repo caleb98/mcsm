@@ -4,6 +4,10 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Server;
 
+import ccode.mcsm.net.message.NetErrorMessage;
+import ccode.mcsm.net.message.NetLoginMessage;
+import ccode.mcsm.net.message.NetLoginSuccessMessage;
+
 public class KryoCreator {
 
 	public static Server createServer() {
@@ -20,7 +24,11 @@ public class KryoCreator {
 	
 	public static void registerKryo(Kryo kryo) {
 		
+		kryo.register(byte[].class);
 		
+		kryo.register(NetErrorMessage.class);
+		kryo.register(NetLoginMessage.class);
+		kryo.register(NetLoginSuccessMessage.class);
 		
 	}
 	

@@ -8,6 +8,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,6 +34,10 @@ import ccode.mcsm.mcserver.MinecraftServer;
 import ccode.mcsm.mcserver.event.EventListener;
 import ccode.mcsm.mcserver.event.MinecraftServerEvent;
 import ccode.mcsm.mcserver.event.PlayerAuthEvent;
+import ccode.mcsm.net.message.NetErrorMessage;
+import ccode.mcsm.net.message.NetLoginMessage;
+import ccode.mcsm.net.message.NetLoginSuccessMessage;
+import ccode.mcsm.permissions.Hash;
 import ccode.mcsm.permissions.Permissions;
 import ccode.mcsm.permissions.Player;
 import ccode.mcsm.scheduling.Scheduler;
@@ -58,8 +64,7 @@ public class MinecraftServerManager extends Listener {
 	private HashMap<String, Player> players = new HashMap<>();
 	
 	//Remote Data
-	private HashMap<Connection, Player> verifiedConnections = new HashMap<>();
-	private ArrayList<Connection> connections = new ArrayList<>();
+	private HashMap<Connection, Player> connections = new HashMap<>();
 	
 	public MinecraftServerManager(String serverJar) {
 		this.serverJar = serverJar;
@@ -302,17 +307,49 @@ public class MinecraftServerManager extends Listener {
 	
 	@Override
 	public void connected(Connection connection) {
-		connections.add(connection);
+		
 	}
 	
 	@Override
 	public void disconnected(Connection connection) {
 		connections.remove(connection);
-		verifiedConnections.remove(connection);
 	}
 	
 	@Override
 	public void received(Connection connection, Object object) {
+		
+		//TODO: remove this code for release
+		String json = Json.toJson(object);
+		System.out.println(json);
+		
+		if(object instanceof NetLoginMessage) {
+			
+			NetLoginMessage login = (NetLoginMessage) object;
+			
+			//See if that player exists
+			Player player = getPlayerFromName(login.playerName);
+			if(player == null) {
+				connection.sendUDP(new NetErrorMessage("Invalid Login", "Invalid login credentials. Please try again."));
+				return;
+			}
+			
+			//Check the password
+			try {
+				if(!Hash.verify(login.passwordHash, player.getPasswordHash())) {
+					connection.sendUDP(new NetErrorMessage("Invalid Login", "Invalid login credentials. Please try again."));
+					return;
+				}
+			} catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
+				connection.sendUDP(new NetErrorMessage("Server Error", "The server encountered an error while trying to verify your " +
+						"credentials. Please try again later."));
+				e.printStackTrace();
+				return;
+			}
+			
+			//Login success
+			connection.sendUDP(new NetLoginSuccessMessage(login.playerName));
+			
+		}
 		
 	}
 	

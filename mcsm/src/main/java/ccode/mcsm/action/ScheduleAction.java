@@ -75,7 +75,7 @@ public class ScheduleAction extends Action {
 				}
 				
 				LocalTime now = LocalTime.now();
-				String fullTime = String.format("%s:%s", now.getHour(), time);
+				String fullTime = String.format("%02d:%s", now.getHour(), time);
 				LocalTime executeAt = LocalTime.parse(fullTime);
 				
 				if(executeAt.isBefore(now)) {

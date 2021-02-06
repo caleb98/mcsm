@@ -13,6 +13,7 @@ public class Player {
 	private transient String uuid;
 	private Permissions permissions;
 	private HashSet<String> commands = new HashSet<>();
+	private String passwordHash = null;
 	
 	public Player(String name, String uuid, Permissions permissions) {
 		this.name = name;
@@ -81,6 +82,14 @@ public class Player {
 
 	public void setUuid(String uuid) {
 		this.uuid = uuid;
+	}
+	
+	public String getPasswordHash() {
+		return passwordHash;
+	}
+	
+	public void setPasswordHash(String passwordHash) {
+		this.passwordHash = passwordHash;
 	}
 	
 }

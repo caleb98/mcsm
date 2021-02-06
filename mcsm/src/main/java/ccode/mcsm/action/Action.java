@@ -59,6 +59,8 @@ public abstract class Action {
 		register(new SetWorldAction());
 		register(new SetSeedAction());
 		register(new ListWorldsAction());
+		
+		register(new NewPasswordAction());
 	
 		areActionsInitialized = true;
 		
