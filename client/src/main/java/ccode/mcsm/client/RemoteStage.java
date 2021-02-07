@@ -123,6 +123,13 @@ public class RemoteStage extends Stage {
 		addEventFilter(KeyEvent.KEY_PRESSED, (event)->{
 			if(serverInput.isFocused() && event.getCode() == KeyCode.ENTER) {
 				String input = serverInput.getText().trim();
+				
+				if(input.equals("clear")) {
+					infoboxText.clear();
+					serverInput.clear();
+					return;
+				}
+				
 				serverInput.clear();
 				if(input.matches("\\s*")) {
 					return;
