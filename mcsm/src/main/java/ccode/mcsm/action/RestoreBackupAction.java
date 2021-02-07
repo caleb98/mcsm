@@ -14,8 +14,8 @@ import java.util.zip.ZipInputStream;
 
 import ccode.mcsm.MinecraftServerManager;
 import ccode.mcsm.mcserver.event.BackupRestoredEvent;
+import ccode.mcsm.permissions.Executor;
 import ccode.mcsm.permissions.Permissions;
-import ccode.mcsm.permissions.Player;
 
 public class RestoreBackupAction extends Action {
 
@@ -28,15 +28,15 @@ public class RestoreBackupAction extends Action {
 	}
 	
 	@Override
-	public int execute(MinecraftServerManager manager, Player executor, String args) {
+	public int execute(MinecraftServerManager manager, Executor executor, String args) {
 		if(manager.getServer().isRunning()) {
-			sendMessage(manager, executor, "Error: cannot restore backup while server is running.");
+			executor.sendMessage(manager, "Error: cannot restore backup while server is running.");
 			return -1;
 		}
 
 		Matcher m = ARGUMENTS_PATTERN.matcher(args);
 		if(!m.matches()) {
-			sendMessage(manager, executor, "Invalid arguments, please provide world name and backup number to restore.");
+			executor.sendMessage(manager, "Invalid arguments, please provide world name and backup number to restore.");
 			return -1;
 		}
 		
@@ -64,14 +64,14 @@ public class RestoreBackupAction extends Action {
 		}
 		
 		if(currentWorldFile == null) {
-			sendMessage(manager, executor, "That world does not exist.");
+			executor.sendMessage(manager, "That world does not exist.");
 			return -1;
 		}
 		
 		//Get backup file.
 		File[] backups = manager.getBackupManager().getBackupFiles(worldName);
 		if(backupNumber >= backups.length) {
-			sendMessage(manager, executor, "Invalid backup number.");
+			executor.sendMessage(manager, "Invalid backup number.");
 			return -1;
 		}
 		File restore = backups[backupNumber];
@@ -82,7 +82,7 @@ public class RestoreBackupAction extends Action {
 			deleteRecursive(tempCurrentWorld);
 		}
 		if(!currentWorldFile.renameTo(tempCurrentWorld)) {
-			sendMessage(manager, executor, "Unable to copy existing world file.");
+			executor.sendMessage(manager, "Unable to copy existing world file.");
 			return -1;
 		}
 		
@@ -120,18 +120,18 @@ public class RestoreBackupAction extends Action {
 			zis.closeEntry();
 			zis.close();
 		} catch (FileNotFoundException fnfe) {
-			sendMessage(manager, executor, "Backup file not found.");
+			executor.sendMessage(manager, "Backup file not found.");
 			tempCurrentWorld.renameTo(currentWorldFile);
 			return -1;
 		} catch (IOException e) {
-			sendMessage(manager, executor, "Error reading backup file: %s", e.getMessage());
+			executor.sendMessage(manager, "Error reading backup file: %s", e.getMessage());
 			currentWorldFile.delete();
 			tempCurrentWorld.renameTo(currentWorldFile);
 			return -1;
 		}
 		
 		manager.addEvent(new BackupRestoredEvent(DateTimeFormatter.ISO_LOCAL_TIME.format(LocalTime.now())));
-		sendMessage(manager, executor, "Backup successfully restored.");
+		executor.sendMessage(manager, "Backup successfully restored.");
 		return 0;
 	}
 	

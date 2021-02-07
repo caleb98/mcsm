@@ -1,8 +1,6 @@
 package ccode.mcsm.client;
 
 import ccode.mcsm.net.message.NetLoginMessage;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -35,9 +33,7 @@ public class ConnectStage extends Stage {
 		connectButton.setAlignment(Pos.TOP_CENTER);
 		connectButton.setMaxWidth(Double.MAX_VALUE);
 		
-		connectButton.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
+		connectButton.setOnAction((event)->{
 				//Only do something if we're not currently trying to connect.
 				if(!remote.isConnecting()) {
 					
@@ -51,7 +47,6 @@ public class ConnectStage extends Stage {
 					remote.sendUDP(login);
 					
 				}
-			}
 		});
 		
 		//Setup layout

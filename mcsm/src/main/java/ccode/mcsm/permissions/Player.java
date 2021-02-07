@@ -1,13 +1,16 @@
 package ccode.mcsm.permissions;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import ccode.mcsm.MinecraftServerManager;
 import ccode.mcsm.action.Action;
+import ccode.mcsm.mcserver.MinecraftServer;
 import ccode.mcsm.task.Task;
 
-public class Player {
+public class Player extends Executor {
 	
 	private String name;
 	private transient String uuid;
@@ -20,6 +23,21 @@ public class Player {
 		this.uuid = uuid;
 		this.permissions = permissions;
 	}
+	
+	@Override
+	public void sendMessage(MinecraftServerManager manager, String message) {
+		if(this == MinecraftServerManager.MCSM_EXECUTOR) {
+			System.out.println(message);
+		}
+		else {
+			MinecraftServer server = manager.getServer();
+			try {
+				server.sendCommand(String.format("tell %s %s", name, message));
+			} catch (IOException e) {
+				System.err.printf("Error sending message to %s: %s\n", name, message);
+			}
+		}
+	}
 
 	public Set<String> getOverrideCommands() {
 		return Collections.unmodifiableSet(commands);
@@ -29,20 +47,24 @@ public class Player {
 		this.permissions = permissions;
 	}
 	
+	@Override
 	public Permissions getPermissions() {
 		return permissions;
 	}
 	
+	@Override
 	public int getPermissionsLevel() {
 		return permissions.level;
 	}
 	
+	@Override
 	public boolean hasPermissions(String actionID) {
 		Action action = Action.get(actionID);
 		if(action == null) return false;
 		return hasPermissions(action);
 	}
 	
+	@Override
 	public boolean hasPermissions(Action action) {
 		if(action.requiredPermission.level <= permissions.level) {
 			return true;
@@ -55,6 +77,7 @@ public class Player {
 		return false;
 	}
 	
+	@Override
 	public boolean hasPermissions(Task task) {
 		//TODO: task level overrides
 		return task.requiredPermission.level <= permissions.level;

@@ -1,15 +1,13 @@
 package ccode.mcsm.action;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import ccode.mcsm.MinecraftServerManager;
-import ccode.mcsm.mcserver.MinecraftServer;
+import ccode.mcsm.permissions.Executor;
 import ccode.mcsm.permissions.Permissions;
-import ccode.mcsm.permissions.Player;
 /**
  * Represents a single action that the server manager may execute.
  * All actions are represented with the format <code>&ltActionID&gt 
@@ -117,7 +115,7 @@ public abstract class Action {
 	 * @param executor the player who executed the action
 	 * @param args arguments for the action
 	 */
-	public static void runAsync(String actionID, MinecraftServerManager manager, Player executor, String args) {
+	public static void runAsync(String actionID, MinecraftServerManager manager, Executor executor, String args) {
 		final Action action = actions.get(actionID);
 		final String trimmedArgs = args.trim();
 		if(action != null) {
@@ -137,31 +135,6 @@ public abstract class Action {
 		}
 	}
 	
-	/**
-	 * Runs this action.
-	 * @param manager the manager that should execute the action
-	 * @param args the string of arguments for this action to run
-	 * @return 0 for success; non-zero value for error
-	 */
-	public abstract int execute(MinecraftServerManager manager, Player executor, String args);
-	
-	public static void sendMessage(MinecraftServerManager manager, Player to, String message) {
-		if(to == MinecraftServerManager.MCSM_EXECUTOR) {
-			System.out.println(message);
-		}
-		else {
-			MinecraftServer server = manager.getServer();
-			try {
-				server.sendCommand(String.format("tell %s %s", to.getName(), message));
-				//System.out.printf("Telling %s: %s\n", to.getName(), message);
-			} catch (IOException e) {
-				System.err.printf("Error sending message to %s: %s\n", to.getName(), message);
-			}
-		}
-	}
-	
-	public static void sendMessage(MinecraftServerManager manager, Player to, String format, Object... args) {
-		sendMessage(manager, to, String.format(format, args));
-	}
+	public abstract int execute(MinecraftServerManager manager, Executor executor, String args);
 	
 }

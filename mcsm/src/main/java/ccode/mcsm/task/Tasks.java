@@ -15,8 +15,8 @@ import java.util.regex.Pattern;
 
 import ccode.mcsm.MinecraftServerManager;
 import ccode.mcsm.action.Action;
+import ccode.mcsm.permissions.Executor;
 import ccode.mcsm.permissions.Permissions;
-import ccode.mcsm.permissions.Player;
 
 public class Tasks {
 
@@ -122,7 +122,7 @@ public class Tasks {
 		System.out.printf("Loaded task:\t%s (%s, argc=%d)\n", taskID, task.requiredPermission, task.argc);
 	}
 	
-	public static void executeTask(MinecraftServerManager manager, Player executor, String taskID, String taskArgsString) {
+	public static void executeTask(MinecraftServerManager manager, Executor executor, String taskID, String taskArgsString) {
 		if(tasks.containsKey(taskID)) {
 			Task task = tasks.get(taskID);
 			
@@ -130,7 +130,7 @@ public class Tasks {
 			
 			//Check executor permissions
 			if(!executor.hasPermissions(task)) {
-				Action.sendMessage(manager, executor, "You don't have the required permissions to run task %s", taskID);
+				executor.sendMessage(manager, "You don't have the required permissions to run task %s", taskID);
 				return;
 			}
 			
@@ -143,7 +143,7 @@ public class Tasks {
 			
 			//Make sure we have enough arguments for the task
 			if(taskArgs.size() != task.argc) {
-				Action.sendMessage(manager, executor, "Error: invalid number of arguments provided for task %s (%d given, expected %d)",
+				executor.sendMessage(manager, "Error: invalid number of arguments provided for task %s (%d given, expected %d)",
 						taskID, taskArgs.size(), task.argc);
 				return;
 			}
@@ -166,12 +166,12 @@ public class Tasks {
 					if(action != null) {
 						int result = Action.get(actionID).execute(manager, executor, arguments);
 						if(result < 0) {
-							Action.sendMessage(manager, executor, "Action %s failed (%d); task %s stopping.", actionID, result, taskID);
+							executor.sendMessage(manager, "Action %s failed (%d); task %s stopping.", actionID, result, taskID);
 							break;
 						}
 					}
 					else {
-						Action.sendMessage(manager, executor, "Error in task \'%s\': listed action \'%s\' does not exist!", taskID, actionID);
+						executor.sendMessage(manager, "Error in task \'%s\': listed action \'%s\' does not exist!", taskID, actionID);
 					}
 					
 				}
@@ -180,7 +180,7 @@ public class Tasks {
 			taskThread.start();
 		}
 		else {
-			Action.sendMessage(manager, executor, "Unable to execute task \'%s\': task not found.", taskID);
+			executor.sendMessage(manager, "Unable to execute task \'%s\': task not found.", taskID);
 		}
 	}
 	

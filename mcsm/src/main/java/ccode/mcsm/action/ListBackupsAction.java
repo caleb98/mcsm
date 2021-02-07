@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 
 import ccode.mcsm.MinecraftServerManager;
 import ccode.mcsm.backup.BackupManager;
+import ccode.mcsm.permissions.Executor;
 import ccode.mcsm.permissions.Permissions;
-import ccode.mcsm.permissions.Player;
 
 public class ListBackupsAction extends Action {
 	
@@ -17,10 +17,10 @@ public class ListBackupsAction extends Action {
 	}
 	
 	@Override
-	public int execute(MinecraftServerManager manager, Player executor, String args) {
+	public int execute(MinecraftServerManager manager, Executor executor, String args) {
 		
 		if(args.matches("\\s*")) {
-			sendMessage(manager, executor, "Please provide a world name.");
+			executor.sendMessage(manager, "Please provide a world name.");
 			return -1;
 		}
 		
@@ -45,23 +45,23 @@ public class ListBackupsAction extends Action {
 		}
 		
 		if(!worldExists) {
-			sendMessage(manager, executor, "That world does not exist.");
+			executor.sendMessage(manager, "That world does not exist.");
 			return 0;
 		}
 		
 		File[] backups = manager.getBackupManager().getBackupFiles(args);
 		
 		if(backups.length == 0) {
-			sendMessage(manager, executor, "There are no backups for this world.");
+			executor.sendMessage(manager, "There are no backups for this world.");
 			return 0;
 		}
 		
-		sendMessage(manager, executor, "Available backups for \"%s\"", args);
+		executor.sendMessage(manager, "Available backups for \"%s\"", args);
 		int backupNum = 1;
 		for(File f : backups) {
 			String backupName = f.getName().replace(".zip", "");
 			LocalDateTime backupTime = BackupManager.TIMESTAMP_FORMATTER.parse(backupName, LocalDateTime::from);
-			sendMessage(manager, executor, "%d > %s", backupNum++, backupTime);
+			executor.sendMessage(manager, "%d > %s", backupNum++, backupTime);
 		}
 		
 		return 0;

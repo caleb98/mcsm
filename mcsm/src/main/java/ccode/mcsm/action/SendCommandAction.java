@@ -3,8 +3,8 @@ package ccode.mcsm.action;
 import java.io.IOException;
 
 import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.permissions.Executor;
 import ccode.mcsm.permissions.Permissions;
-import ccode.mcsm.permissions.Player;
 
 /**
  * An action that sends a specified server command directly
@@ -19,18 +19,18 @@ public class SendCommandAction extends Action {
 	}
 	
 	@Override
-	public int execute(MinecraftServerManager manager, Player executor, String args) {
+	public int execute(MinecraftServerManager manager, Executor executor, String args) {
 		
 		//Make sure the server is running
 		if(!manager.getServer().isRunning()) {
-			sendMessage(manager, executor, "Error in SendCommand: server not running");
+			executor.sendMessage(manager, "Error in SendCommand: server not running");
 			return -1;
 		}
 		
 		try {
 			manager.getServer().sendCommand(args);
 		} catch (IOException e) {
-			sendMessage(manager, executor, "Error sending command \'%s\' to server: %s", args, e.getMessage());
+			executor.sendMessage(manager, "Error sending command \'%s\' to server: %s", args, e.getMessage());
 		}
 		
 		return 0;

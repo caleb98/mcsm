@@ -5,6 +5,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Random;
 
 import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.permissions.Executor;
 import ccode.mcsm.permissions.Hash;
 import ccode.mcsm.permissions.Permissions;
 import ccode.mcsm.permissions.Player;
@@ -25,7 +26,14 @@ public class NewPasswordAction extends Action {
 	}
 
 	@Override
-	public int execute(MinecraftServerManager manager, Player executor, String args) {
+	public int execute(MinecraftServerManager manager, Executor executor, String args) {
+		if(!(executor instanceof Player)) {
+			executor.sendMessage(manager, "This action can only be performed via in-game mcsm commands.");
+			return -1;
+		}
+		
+		Player player = (Player) executor;
+		
 		String pass = "";
 		Random rand = new Random();
 		for(int i = 0; i < PASS_LENGTH; i++) {
@@ -36,12 +44,12 @@ public class NewPasswordAction extends Action {
 		try {
 			hash = Hash.hash(pass);
 		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-			sendMessage(manager, executor, "Error generating password: %s", e.getMessage());
+			executor.sendMessage(manager, "Error generating password: %s", e.getMessage());
 			return -1;
 		}
 		
-		executor.setPasswordHash(hash);
-		sendMessage(manager, executor, "Your new password is: %s", pass);
+		player.setPasswordHash(hash);
+		player.sendMessage(manager, "Your new password is: %s", pass);
 		
 		return 0;
 	}

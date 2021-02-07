@@ -3,8 +3,8 @@ package ccode.mcsm.action;
 import java.io.File;
 
 import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.permissions.Executor;
 import ccode.mcsm.permissions.Permissions;
-import ccode.mcsm.permissions.Player;
 
 public class ListWorldsAction extends Action {
 
@@ -15,7 +15,7 @@ public class ListWorldsAction extends Action {
 	}
 	
 	@Override
-	public int execute(MinecraftServerManager manager, Player executor, String args) {
+	public int execute(MinecraftServerManager manager, Executor executor, String args) {
 		File serverDir = manager.getServerDirectory();
 		File[] directories = serverDir.listFiles((f)->{
 			if(f.isDirectory()) {
@@ -28,9 +28,9 @@ public class ListWorldsAction extends Action {
 			return false;
 		});
 		
-		sendMessage(manager, executor, "Existing Worlds:");
+		executor.sendMessage(manager, "Existing Worlds:");
 		for(File worldDir : directories) {
-			sendMessage(manager, executor, "> %s", worldDir.getName());
+			executor.sendMessage(manager, "> %s", worldDir.getName());
 		}
 		
 		return 0;

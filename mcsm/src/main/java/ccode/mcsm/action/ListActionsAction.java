@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.permissions.Executor;
 import ccode.mcsm.permissions.Permissions;
-import ccode.mcsm.permissions.Player;
 
 /**
  * A utility action that prints each of the available actions
@@ -20,14 +20,14 @@ public class ListActionsAction extends Action {
 	}
 	
 	@Override
-	public int execute(MinecraftServerManager manager, Player executor, String args) {
+	public int execute(MinecraftServerManager manager, Executor executor, String args) {
 		ArrayList<String> actions = new ArrayList<>(Action.getActions());
 		Collections.sort(actions);
 		
-		sendMessage(manager, executor, "Available actions:");
+		executor.sendMessage(manager, "Available actions:");
 		for(String action : actions) {
 			if(executor.hasPermissions(action))
-				sendMessage(manager, executor, " > %s", action);
+				executor.sendMessage(manager, " > %s", action);
 		}
 		
 		return 0;

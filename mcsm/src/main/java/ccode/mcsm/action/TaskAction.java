@@ -1,8 +1,8 @@
 package ccode.mcsm.action;
 
 import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.permissions.Executor;
 import ccode.mcsm.permissions.Permissions;
-import ccode.mcsm.permissions.Player;
 import ccode.mcsm.task.Tasks;
 
 /**
@@ -19,12 +19,12 @@ public class TaskAction extends Action {
 	}
 	
 	@Override
-	public int execute(MinecraftServerManager manager, Player executor, String taskCommand) {
+	public int execute(MinecraftServerManager manager, Executor executor, String taskCommand) {
 		String[] split = taskCommand.split("\\s+");
 		
 		//Make sure a task name was provided
 		if(split.length == 0) {
-			sendMessage(manager, executor, "Error: no task name provided.");
+			executor.sendMessage(manager, "Error: no task name provided.");
 			return -1;
 		}
 		

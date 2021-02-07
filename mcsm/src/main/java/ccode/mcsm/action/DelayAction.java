@@ -6,8 +6,8 @@ import java.util.regex.Pattern;
 
 import ccode.mcsm.Block;
 import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.permissions.Executor;
 import ccode.mcsm.permissions.Permissions;
-import ccode.mcsm.permissions.Player;
 import ccode.mcsm.scheduling.Scheduler;
 
 /**
@@ -26,11 +26,11 @@ public class DelayAction extends Action {
 	}
 	
 	@Override
-	public int execute(MinecraftServerManager manager, Player executor, String delay) {
+	public int execute(MinecraftServerManager manager, Executor executor, String delay) {
 		Matcher m = ARGUMENT_PATTERN.matcher(delay);
 		
 		if(!m.find()) {
-			sendMessage(manager, executor, "Error in Delay: provided arguments don't match expected input.");
+			executor.sendMessage(manager, "Error in Delay: provided arguments don't match expected input.");
 			return -1;
 		}
 		

@@ -5,8 +5,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
 import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.permissions.Executor;
 import ccode.mcsm.permissions.Permissions;
-import ccode.mcsm.permissions.Player;
 import ccode.mcsm.scheduling.Schedule;
 import ccode.mcsm.scheduling.Scheduler;
 
@@ -19,27 +19,27 @@ public class ScheduleInfoAction extends Action {
 	}
 	
 	@Override
-	public int execute(MinecraftServerManager manager, Player executor, String args) {
+	public int execute(MinecraftServerManager manager, Executor executor, String args) {
 		Schedule schedule = Scheduler.getSchedule(args);
 		if(schedule == null) {
-			sendMessage(manager, executor, "Error: invalid schedule id");
+			executor.sendMessage(manager, "Error: invalid schedule id");
 			return -1;
 		}
 		
-		sendMessage(manager, executor, "id: %s", schedule.id);
-		sendMessage(manager, executor, "executor: %s", schedule.executor.getName());
+		executor.sendMessage(manager, "id: %s", schedule.id);
+		executor.sendMessage(manager, "executor: %s", schedule.executor.getName());
 		
 		if(schedule.at == null) {
 			long until = schedule.future.getDelay(TimeUnit.of(ChronoUnit.MILLIS));
-			sendMessage(manager, executor, "next: %s", 
+			executor.sendMessage(manager, "next: %s", 
 					LocalTime.now().plus(until, ChronoUnit.MILLIS).truncatedTo(ChronoUnit.SECONDS));
 		}
 		else {
-			sendMessage(manager, executor, "at: %s", schedule.at);
+			executor.sendMessage(manager, "at: %s", schedule.at);
 		}
 		
-		sendMessage(manager, executor, "action: %s", schedule.actionID);
-		sendMessage(manager, executor, "arguments: %s", schedule.args);
+		executor.sendMessage(manager, "action: %s", schedule.actionID);
+		executor.sendMessage(manager, "arguments: %s", schedule.args);
 		
 		return 0;
 	}

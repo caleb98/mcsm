@@ -12,8 +12,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.permissions.Executor;
 import ccode.mcsm.permissions.Permissions;
 import ccode.mcsm.permissions.Player;
+import ccode.mcsm.permissions.RemoteExecutor;
 import ccode.mcsm.scheduling.Schedule;
 import ccode.mcsm.scheduling.Scheduler;
 
@@ -41,11 +43,11 @@ public class ScheduleAction extends Action {
 	}
 	
 	@Override
-	public int execute(MinecraftServerManager manager, Player executor, String args) {
+	public int execute(MinecraftServerManager manager, Executor executor, String args) {
 		Matcher m = ARGUMENT_PATTERN.matcher(args);
 		
 		if(!m.matches()) {
-			sendMessage(manager, executor, "Error in Schedule: provided arguments don't match expected input.");
+			executor.sendMessage(manager, "Error in Schedule: provided arguments don't match expected input.");
 			return -1;
 		}
 		
@@ -58,7 +60,7 @@ public class ScheduleAction extends Action {
 		if(scheduleID != null) scheduleID = scheduleID.trim();
 		
 		if(Action.get(actionID) == null) {
-			sendMessage(manager, executor, "Error in Schedule: provided action does not exist.");
+			executor.sendMessage(manager, "Error in Schedule: provided action does not exist.");
 			return -1;
 		}
 		
@@ -70,7 +72,7 @@ public class ScheduleAction extends Action {
 				
 				Matcher freqMatcher = HOURLY_TASK_TIME.matcher(time);
 				if(!freqMatcher.matches()) {
-					sendMessage(manager, executor, "Provided schedule time is incorrect. Expected format: MM:SS");
+					executor.sendMessage(manager, "Provided schedule time is incorrect. Expected format: MM:SS");
 					return -1;
 				}
 				
@@ -96,10 +98,22 @@ public class ScheduleAction extends Action {
 						TimeUnit.of(ChronoUnit.MILLIS)
 				);
 				
-				Schedule schedule = new Schedule(scheduleID, future, executor, null, actionID, nextArgs);
+				Player playerExec;
+				if(executor instanceof RemoteExecutor) {
+					RemoteExecutor re = (RemoteExecutor) executor;
+					playerExec = re.getPlayer();
+				}
+				else if(executor instanceof Player) {
+					playerExec = (Player) executor;
+				}
+				else {
+					executor.sendMessage(manager, "Error resolving executor type for schedule. Schedule will not be set.");
+					return -1;
+				}
+				Schedule schedule = new Schedule(scheduleID, future, playerExec, null, actionID, nextArgs);
 				Scheduler.registerSchedule(scheduleID, schedule);
 				
-				sendMessage(manager, executor, "Registered schedule: %s", scheduleID);
+				executor.sendMessage(manager, "Registered schedule: %s", scheduleID);
 				return 0;
 				
 			}
@@ -107,7 +121,7 @@ public class ScheduleAction extends Action {
 				
 				Matcher freqMatcher = DAILY_TASK_TIME.matcher(time);
 				if(!freqMatcher.matches()) {
-					sendMessage(manager, executor, "Provided schedule time is incorrect. Expected format: HH:MM:SS");
+					executor.sendMessage(manager, "Provided schedule time is incorrect. Expected format: HH:MM:SS");
 					return -1;
 				}
 				
@@ -127,15 +141,27 @@ public class ScheduleAction extends Action {
 						TimeUnit.of(ChronoUnit.MILLIS)
 				);
 				
-				Schedule schedule = new Schedule(scheduleID, future, executor, null, actionID, nextArgs);
+				Player playerExec;
+				if(executor instanceof RemoteExecutor) {
+					RemoteExecutor re = (RemoteExecutor) executor;
+					playerExec = re.getPlayer();
+				}
+				else if(executor instanceof Player) {
+					playerExec = (Player) executor;
+				}
+				else {
+					executor.sendMessage(manager, "Error resolving executor type for schedule. Schedule will not be set.");
+					return -1;
+				}
+				Schedule schedule = new Schedule(scheduleID, future, playerExec, null, actionID, nextArgs);
 				Scheduler.registerSchedule(scheduleID, schedule);
 				
-				sendMessage(manager, executor, "Registered schedule: %s", scheduleID);
+				executor.sendMessage(manager, "Registered schedule: %s", scheduleID);
 				return 0;
 				
 			}
 			else {
-				sendMessage(manager, executor, "Error processing schedule frequency.");
+				executor.sendMessage(manager, "Error processing schedule frequency.");
 				return -1;
 			}
 		}
@@ -165,14 +191,14 @@ public class ScheduleAction extends Action {
 				}
 			}
 			else {
-				sendMessage(manager, executor, "Error in Schedule: provided date/time %s is not a valid format", time);
+				executor.sendMessage(manager, "Error in Schedule: provided date/time %s is not a valid format", time);
 				return -1;
 			}
 
 			long delayMillis = ChronoUnit.MILLIS.between(LocalDateTime.now(), scheduleAt);
 			
 			if(delayMillis < 0) {
-				sendMessage(manager, executor, "WARNING: Time for scheduled action has already passed. It will not be executed.");
+				executor.sendMessage(manager, "WARNING: Time for scheduled action has already passed. It will not be executed.");
 				return 0;
 			}
 			
@@ -186,9 +212,22 @@ public class ScheduleAction extends Action {
 					delayMillis, 
 					TimeUnit.of(ChronoUnit.MILLIS)
 			);
-			Schedule schedule = new Schedule(scheduleID, future, executor, scheduleAt, actionID, nextArgs);
+			
+			Player playerExec;
+			if(executor instanceof RemoteExecutor) {
+				RemoteExecutor re = (RemoteExecutor) executor;
+				playerExec = re.getPlayer();
+			}
+			else if(executor instanceof Player) {
+				playerExec = (Player) executor;
+			}
+			else {
+				executor.sendMessage(manager, "Error resolving executor type for schedule. Schedule will not be set.");
+				return -1;
+			}
+			Schedule schedule = new Schedule(scheduleID, future, playerExec, scheduleAt, actionID, nextArgs);
 			Scheduler.registerSchedule(scheduleID, schedule);
-			sendMessage(manager, executor, "Registered schedule: %s", scheduleID);
+			executor.sendMessage(manager, "Registered schedule: %s", scheduleID);
 			
 			return 0;
 			

@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.permissions.Executor;
 import ccode.mcsm.permissions.Permissions;
-import ccode.mcsm.permissions.Player;
 import ccode.mcsm.task.Tasks;
 
 /**
@@ -21,13 +21,13 @@ public class ListTasksAction extends Action {
 	}
 	
 	@Override
-	public int execute(MinecraftServerManager manager, Player executor, String args) {
+	public int execute(MinecraftServerManager manager, Executor executor, String args) {
 		ArrayList<String> tasks = new ArrayList<>(Tasks.getTasks());
 		Collections.sort(tasks);
 		//TODO: task permission levels
-		sendMessage(manager, executor, "Available tasks: ");
+		executor.sendMessage(manager, "Available tasks: ");
 		for(String task : tasks) {
-			sendMessage(manager, executor, " > %s", task);
+			executor.sendMessage(manager, " > %s", task);
 		}
 		return 0;
 	}

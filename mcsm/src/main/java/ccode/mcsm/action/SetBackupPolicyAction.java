@@ -7,8 +7,8 @@ import ccode.mcsm.MinecraftServerManager;
 import ccode.mcsm.backup.MaxCapacityPolicy;
 import ccode.mcsm.backup.MaxCountPolicy;
 import ccode.mcsm.backup.NoLimitPolicy;
+import ccode.mcsm.permissions.Executor;
 import ccode.mcsm.permissions.Permissions;
-import ccode.mcsm.permissions.Player;
 
 public class SetBackupPolicyAction extends Action {
 
@@ -25,10 +25,10 @@ public class SetBackupPolicyAction extends Action {
 	}
 	
 	@Override
-	public int execute(MinecraftServerManager manager, Player executor, String args) {
+	public int execute(MinecraftServerManager manager, Executor executor, String args) {
 		Matcher m = ARGUMENT_PATTERN.matcher(args);
 		if(!m.matches()) {
-			sendMessage(manager, executor, "Invalid arguments. Provide a policy name, world name, and any required values for that policy.");
+			executor.sendMessage(manager, "Invalid arguments. Provide a policy name, world name, and any required values for that policy.");
 			return -1;
 		}
 		
@@ -38,7 +38,7 @@ public class SetBackupPolicyAction extends Action {
 		
 		//Check that world name is provided
 		if(policyArgs.length < 1) {
-			sendMessage(manager, executor, "Invalid arguments. Provide a policy name, world name, and any required values for that policy.");
+			executor.sendMessage(manager, "Invalid arguments. Provide a policy name, world name, and any required values for that policy.");
 			return -1;
 		}
 		
@@ -51,7 +51,7 @@ public class SetBackupPolicyAction extends Action {
 		//Check for MaxCapacityPolicy
 		else if(policyType.equals(MaxCapacityPolicy.class.getSimpleName())) {
 			if(policyArgs.length < 2) {
-				sendMessage(manager, executor, "Invalid arguments. Please provide the max capacity (in bytes) for this policy.");
+				executor.sendMessage(manager, "Invalid arguments. Please provide the max capacity (in bytes) for this policy.");
 				return -1;
 			}
 
@@ -60,7 +60,7 @@ public class SetBackupPolicyAction extends Action {
 				manager.getBackupManager().getPolicies()
 					.put(policyArgs[0], new MaxCapacityPolicy(manager.getBackupManager(), maxBytes));
 			} catch (NumberFormatException e) {
-				sendMessage(manager, executor, "Error reading max bytes value: %s", e.getMessage());
+				executor.sendMessage(manager, "Error reading max bytes value: %s", e.getMessage());
 				return -1;
 			}
 		}
@@ -68,7 +68,7 @@ public class SetBackupPolicyAction extends Action {
 		//Check for MaxCountPolicy
 		else if(policyType.equals(MaxCountPolicy.class.getSimpleName())) {
 			if(policyArgs.length < 2) {
-				sendMessage(manager, executor, "Invalid arguments. Please provide the max number of backups for this policy.");
+				executor.sendMessage(manager, "Invalid arguments. Please provide the max number of backups for this policy.");
 				return -1;
 			}
 			
@@ -77,18 +77,18 @@ public class SetBackupPolicyAction extends Action {
 				manager.getBackupManager().getPolicies()
 					.put(policyArgs[0], new MaxCountPolicy(manager.getBackupManager(), maxCount));
 			} catch (NumberFormatException e) {
-				sendMessage(manager, executor, "Error reading max backups value: %s", e.getMessage());
+				executor.sendMessage(manager, "Error reading max backups value: %s", e.getMessage());
 				return -1;
 			}
 		}
 		
 		//Horrible error, since we matched but didn't have an acceptable policy.
 		else {
-			sendMessage(manager, executor, "Error setting policy. This error should never be reached, so if you see this message please report it.");
+			executor.sendMessage(manager, "Error setting policy. This error should never be reached, so if you see this message please report it.");
 			return -1;
 		}
 		
-		sendMessage(manager, executor, "Policy successfully updated.");
+		executor.sendMessage(manager, "Policy successfully updated.");
 		return 0;
 	}
 	

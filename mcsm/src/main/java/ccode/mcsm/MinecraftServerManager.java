@@ -36,6 +36,7 @@ import ccode.mcsm.mcserver.event.EventListener;
 import ccode.mcsm.mcserver.event.MinecraftServerEvent;
 import ccode.mcsm.mcserver.event.PlayerAuthEvent;
 import ccode.mcsm.mcserver.event.PlayerChatEvent;
+import ccode.mcsm.net.message.NetDoActionMessage;
 import ccode.mcsm.net.message.NetErrorMessage;
 import ccode.mcsm.net.message.NetLoginMessage;
 import ccode.mcsm.net.message.NetLoginSuccessMessage;
@@ -43,6 +44,7 @@ import ccode.mcsm.net.message.NetMinecraftChatMessage;
 import ccode.mcsm.permissions.Hash;
 import ccode.mcsm.permissions.Permissions;
 import ccode.mcsm.permissions.Player;
+import ccode.mcsm.permissions.RemoteExecutor;
 import ccode.mcsm.scheduling.Scheduler;
 
 public class MinecraftServerManager extends Listener {
@@ -67,7 +69,7 @@ public class MinecraftServerManager extends Listener {
 	private HashMap<String, Player> players = new HashMap<>();
 	
 	//Remote Data
-	private HashMap<Connection, Player> connections = new HashMap<>();
+	private HashMap<Connection, RemoteExecutor> connections = new HashMap<>();
 	
 	public MinecraftServerManager(String serverJar) {
 		this.serverJar = serverJar;
@@ -364,7 +366,35 @@ public class MinecraftServerManager extends Listener {
 			
 			//Login success
 			connection.sendUDP(new NetLoginSuccessMessage(login.playerName));
-			connections.put(connection, player);
+			connections.put(connection, new RemoteExecutor(connection, player));
+			
+		}
+		else if(object instanceof NetDoActionMessage) {
+			NetDoActionMessage doAction = (NetDoActionMessage) object;
+			
+			RemoteExecutor exec = connections.get(connection);
+			
+			//Make sure that the action exists
+			Action action = Action.get(doAction.actionId);
+			if(action == null) {
+				NetErrorMessage err = new NetErrorMessage("Error", "Invalid action id provided.");
+				connection.sendUDP(err);
+				return;
+			}
+			
+			//Make sure the user has permissions to execute action
+			if(!exec.hasPermissions(action)) {
+				NetErrorMessage err = new NetErrorMessage("Error", 
+						String.format("You don't have permission to do that. Requires permissions %s;"
+								+ " you have %s.", 
+								action.requiredPermission,
+								exec.getPermissions()));
+				connection.sendUDP(err);
+				return;
+			}
+			
+			//Run the action
+			Action.runAsync(doAction.actionId, this, exec, doAction.arguments);
 			
 		}
 		

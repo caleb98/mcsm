@@ -3,8 +3,8 @@ package ccode.mcsm.action;
 import java.io.IOException;
 
 import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.permissions.Executor;
 import ccode.mcsm.permissions.Permissions;
-import ccode.mcsm.permissions.Player;
 
 /**
  * An action that sets a specific property in the server.properties
@@ -19,12 +19,12 @@ public class SetPropertyAction extends Action {
 	}
 	
 	@Override
-	public int execute(MinecraftServerManager manager, Player executor, String args) {
+	public int execute(MinecraftServerManager manager, Executor executor, String args) {
 		if(manager.getServer().arePropsLoaded()) {
 			
 			String[] split = args.split("\\s+");
 			if(split.length < 2) {
-				sendMessage(manager, executor, "Invalid arguments for SetProperty action: %s", args);
+				executor.sendMessage(manager, "Invalid arguments for SetProperty action: %s", args);
 				return -1;
 			}
 			
@@ -34,7 +34,7 @@ public class SetPropertyAction extends Action {
 			try {
 				manager.getServer().setProperty(prop, value);
 			} catch (IOException e) {
-				sendMessage(manager, executor, "Error writing new property to file: %s", e.getMessage());
+				executor.sendMessage(manager, "Error writing new property to file: %s", e.getMessage());
 				return -1;
 			}
 			

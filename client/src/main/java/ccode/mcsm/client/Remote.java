@@ -4,11 +4,13 @@ import java.io.IOException;
 
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.FrameworkMessage.KeepAlive;
 import com.esotericsoftware.kryonet.Listener;
 
 import ccode.mcsm.Json;
 import ccode.mcsm.net.KryoCreator;
 import ccode.mcsm.net.message.NetErrorMessage;
+import ccode.mcsm.net.message.NetExecutionMessage;
 import ccode.mcsm.net.message.NetLoginSuccessMessage;
 import ccode.mcsm.net.message.NetMinecraftChatMessage;
 import javafx.application.Platform;
@@ -77,8 +79,10 @@ public class Remote extends Listener {
 	public void received(Connection connection, Object object) {
 		
 		//TODO: remove for release
-		String json = Json.toJson(object);
-		System.out.println(json);
+		if(!(object instanceof KeepAlive)) {
+			String json = Json.toJson(object);
+			System.out.println(json);
+		}
 		
 		if(object instanceof NetErrorMessage) {
 			NetErrorMessage error = (NetErrorMessage) object;
@@ -102,6 +106,12 @@ public class Remote extends Listener {
 			Platform.runLater(()->{
 				NetMinecraftChatMessage message = (NetMinecraftChatMessage) object;
 				remoteStage.addChatMessage(message);
+			});
+		}
+		else if(object instanceof NetExecutionMessage) {
+			Platform.runLater(()->{
+				NetExecutionMessage message = (NetExecutionMessage) object;
+				remoteStage.addExecutionMessage(message);
 			});
 		}
 		

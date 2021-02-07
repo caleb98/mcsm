@@ -5,8 +5,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ccode.mcsm.MinecraftServerManager;
+import ccode.mcsm.permissions.Executor;
 import ccode.mcsm.permissions.Permissions;
-import ccode.mcsm.permissions.Player;
 
 public class SetWorldAction extends Action {
 
@@ -19,10 +19,10 @@ public class SetWorldAction extends Action {
 	}
 
 	@Override
-	public int execute(MinecraftServerManager manager, Player executor, String args) {
+	public int execute(MinecraftServerManager manager, Executor executor, String args) {
 		Matcher m = ARGUMENT_PATTENR.matcher(args);
 		if(!m.matches()) {
-			sendMessage(manager, executor, "Invalid world name.");
+			executor.sendMessage(manager, "Invalid world name.");
 			return -1;
 		}
 		
@@ -30,11 +30,11 @@ public class SetWorldAction extends Action {
 		try {
 			manager.getServer().setProperty("level-name", worldName);
 		} catch (IOException e) {
-			sendMessage(manager, executor, "IO error occurred while writing to properites file: %s", e.getMessage());
+			executor.sendMessage(manager, "IO error occurred while writing to properites file: %s", e.getMessage());
 			return -1;
 		}
 		
-		sendMessage(manager, executor, "World swapped. New world will be loaded on next server launch.");
+		executor.sendMessage(manager, "World swapped. New world will be loaded on next server launch.");
 		return 0;
 	}
 
