@@ -3,6 +3,7 @@ package ccode.mcsm.client;
 import ccode.mcsm.net.message.NetDoActionMessage;
 import ccode.mcsm.net.message.NetExecutionMessage;
 import ccode.mcsm.net.message.NetMinecraftChatMessage;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -15,6 +16,9 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -42,9 +46,6 @@ public class RemoteStage extends Stage {
 	private Button stopServerButton;
 	private Button saveServerButton;
 	
-	private Tab tasksTab;
-	private Tab backupsTab;
-	
 	private Tab chatTab;
 	private TextArea chat;
 	
@@ -52,6 +53,7 @@ public class RemoteStage extends Stage {
 	private VBox infobox;
 	private Label infoboxLabel;
 	private TextArea infoboxText;
+	private TextField serverInput;
 	
 	public RemoteStage(Remote remote) {
 		this.remote = remote;
@@ -88,6 +90,9 @@ public class RemoteStage extends Stage {
 		generalButtons.add(stopServerButton, 1, 0);
 		generalButtons.add(saveServerButton, 0, 1, 2, 1);
 		generalButtons.setAlignment(Pos.CENTER);
+		generalButtons.setHgap(5);
+		generalButtons.setVgap(5);
+		generalButtons.setPadding(new Insets(5));
 		
 		ColumnConstraints cc = new ColumnConstraints();
 		cc.setHgrow(Priority.ALWAYS);
@@ -101,23 +106,36 @@ public class RemoteStage extends Stage {
 		GridPane.setFillHeight(saveServerButton, true);
 		
 		generalTab = new Tab("General", generalButtons);
-		
-		tasksTab = new Tab("Tasks");
-		backupsTab = new Tab("Backups");
 
 		chat = new TextArea();
 		chatTab = new Tab("Chat", chat);
 		
-		tabs = new TabPane(generalTab, tasksTab, backupsTab, chatTab);
+		tabs = new TabPane(generalTab, chatTab);
 		tabs.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
 		
 		//Create infobox
 		infoboxLabel = new Label("Server:");
 		infoboxText = new TextArea();
 		infoboxText.setEditable(false);
-		infoboxText.setPrefHeight(200);
+		VBox.setVgrow(infoboxText, Priority.ALWAYS);
 		
-		infobox = new VBox(infoboxLabel, infoboxText);
+		serverInput = new TextField();
+		addEventFilter(KeyEvent.KEY_PRESSED, (event)->{
+			if(serverInput.isFocused() && event.getCode() == KeyCode.ENTER) {
+				String input = serverInput.getText().trim();
+				serverInput.clear();
+				if(input.matches("\\s*")) {
+					return;
+				}
+				String action = input.split("\\s+")[0];
+				String args = input.substring(action.length()).trim();
+				
+				NetDoActionMessage netAction = new NetDoActionMessage(action, args);
+				remote.sendUDP(netAction);
+			}
+		});
+		
+		infobox = new VBox(infoboxLabel, infoboxText, serverInput);
 		
 		//Create center pane
 		centerPane = new SplitPane(tabs, infobox);
