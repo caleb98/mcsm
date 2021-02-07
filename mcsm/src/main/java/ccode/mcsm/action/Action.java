@@ -32,6 +32,7 @@ public abstract class Action {
 		
 		register(new BackupWorldAction());
 		register(new ListBackupPoliciesAction());
+		register(new BackupPolicyInfoAction());
 		register(new SetBackupPolicyAction());
 		register(new ListBackupsAction());
 		register(new RestoreBackupAction());
