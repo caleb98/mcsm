@@ -130,6 +130,7 @@ public class RestoreBackupAction extends Action {
 			return -1;
 		}
 		
+		deleteRecursive(tempCurrentWorld);
 		manager.addEvent(new BackupRestoredEvent(DateTimeFormatter.ISO_LOCAL_TIME.format(LocalTime.now())));
 		executor.sendMessage(manager, "Backup successfully restored.");
 		return 0;
@@ -148,6 +149,10 @@ public class RestoreBackupAction extends Action {
 		return destFile;
 	}
 	
+	/**
+	 * Deletes a directory recursively, including all sub-directories and files.
+	 * @param directory
+	 */
 	private void deleteRecursive(File directory) {
 		for(File f : directory.listFiles()) {
 			if(f.isDirectory()) {
