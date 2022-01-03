@@ -46,6 +46,8 @@ public abstract class Action {
 		
 		register(new SetPermissionLevelAction());
 		register(new GetPermissionLevelAction());
+		register(new GrantUserPermissionAction());
+		register(new RevokeUserPermissionAction());
 		
 		register(new ScheduleAction());
 		register(new ListSchedulesAction());
