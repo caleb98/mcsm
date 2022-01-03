@@ -21,11 +21,16 @@ public class BackupPolicyInfoAction extends Action {
 	public int execute(MinecraftServerManager manager, Executor executor, String args) {
 		String worldName = args.trim();
 		
+		if(worldName.equals("")) {
+			executor.sendMessage(manager, "No world name provided. Please provide the world you would like to retrieve backup policy information for.");
+			return -1;
+		}
+		
 		BackupManager bm = manager.getBackupManager();
 		BackupPolicy policy = bm.getPolicies().get(worldName);
 		
 		if(policy == null) {
-			executor.sendMessage(manager, "Invalid world name provided. Please provide the world name as an argument for this action.");
+			executor.sendMessage(manager, "That world has no specified backup policies.");
 			return -1;
 		}
 		
