@@ -80,7 +80,7 @@ public class Player extends Executor {
 	@Override
 	public boolean hasPermissions(Task task) {
 		//TODO: task level overrides
-		return task.requiredPermission.level <= permissions.level;
+		return task.getRequiredPermissions().level <= permissions.level;
 	}
 	
 	public void addPermission(String permission) {

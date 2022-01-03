@@ -35,7 +35,6 @@ public class SetPermissionLevelAction extends Action {
 			return -1;
 		}
 		
-		//TODO: permission rank, where people who have had a rank longer can't change
 		if(executor.getPermissionsLevel() <= changing.getPermissionsLevel()) {
 			executor.sendMessage(manager, "Error: that player's current permissions level is too high for you to change");
 			return -1;

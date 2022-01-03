@@ -106,6 +106,12 @@ public class Tasks {
 			registerTask(currentTask, currentPermissions, currentTaskActions);
 		}
 		
+		for(String taskName : tasks.keySet()) {
+			Task t = tasks.get(taskName);
+			System.out.printf("Loaded task:\t%s (%s, argc=%d)\n", 
+					taskName, t.getRequiredPermissions(), t.argc);
+		}
+		
 		tasksReader.close();
 	}
 	
@@ -119,7 +125,6 @@ public class Tasks {
 		} catch (IllegalArgumentException | NullPointerException e) {}
 		Task task = new Task(actions, permission);
 		tasks.put(taskID, task);
-		System.out.printf("Loaded task:\t%s (%s, argc=%d)\n", taskID, task.requiredPermission, task.argc);
 	}
 	
 	public static Task getTask(String task) {
