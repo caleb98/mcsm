@@ -26,7 +26,7 @@ import ccode.mcsm.permissions.Player;
 
 public class MinecraftServer implements Runnable {
 	
-	private static final Pattern MSCM_COMMAND_PATTERN = Pattern.compile("\\[\\d{2}:\\d{2}:\\d{2}\\] \\[Server thread\\/INFO\\]: <(\\w+)> mcsm (.+)");
+	private static final Pattern MSCM_COMMAND_PATTERN = Pattern.compile("^\\[\\d{2}:\\d{2}:\\d{2}\\] \\[Server thread\\/INFO\\]: <(\\w+)> mcsm (.+)$");
 	
 	private File serverDirectory;
 	private MinecraftServerManager manager;
