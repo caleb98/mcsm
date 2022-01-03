@@ -46,16 +46,18 @@ import ccode.mcsm.permissions.Permissions;
 import ccode.mcsm.permissions.Player;
 import ccode.mcsm.permissions.RemoteExecutor;
 import ccode.mcsm.scheduling.Scheduler;
+import ccode.mcsm.task.Tasks;
 
 public class MinecraftServerManager extends Listener {
 	
-	private static final String SCHEDULES_FILE = "mcsm_schedules.txt";
-	private static final String PLAYERS_FILE = "mcsm_players.json";
+	private static final String DATA_DIR_NAME = "mcsm_data";
+	private static final String SCHEDULES_FILE = "schedules.txt";
+	private static final String PLAYERS_FILE = "players.json";
 	private static final String BACKUP_MANAGER_FILE = "mcsm_backup.json";
-	private static final String BACKUP_DEFAULT_DIR = "mcsm_backup";
 	
 	public static final Player MCSM_EXECUTOR = new Player("MCSM-EXECUTOR", UUID.randomUUID().toString(), Permissions.MCSM_EXECUTOR);
 
+	private File dataDirectory;
 	private File serverDirectory;
 	private String serverJar;
 	private MinecraftServer server;
@@ -74,19 +76,37 @@ public class MinecraftServerManager extends Listener {
 	public MinecraftServerManager(String serverJar) {
 		this.serverJar = serverJar;
 		
+		// Grab the server directory
 		try {
 			serverDirectory = new File(serverJar).getCanonicalFile().getParentFile();
 		} catch (IOException e) {
 			// TODO Handle this more gracefully
 			System.err.printf("Error grabbing server directory: %s\n", e.getMessage());
 			System.exit(-1);
-		}		
+		}
+		
+		// Create the mcsm data directory
+		dataDirectory = new File(serverDirectory, DATA_DIR_NAME);
+		if(!dataDirectory.exists()) {
+			System.out.println("Creating MCSM data directory.");
+			if(!dataDirectory.mkdir()) {
+				System.err.printf("Unable to create MCSM data directory.");
+				System.exit(-1);
+			}
+		}
+		
+		//Load the tasks from the user file
+		try {
+			Tasks.loadTasks(dataDirectory);
+		} catch (IOException e) {
+			System.err.printf("Unable to load tasks: %s\n", e.getMessage());
+		}
 	}
 	
 	public void start() {
 		server = new MinecraftServer(this, serverDirectory, "java", "-Xms1024M", "-Xmx4096M", "-jar", serverJar, "-nogui");
 		
-		Scheduler.loadSchedules(this, new File(SCHEDULES_FILE));
+		Scheduler.loadSchedules(this, new File(dataDirectory, SCHEDULES_FILE));
 		loadBackupManager();
 		loadPlayers();
 		
@@ -189,9 +209,18 @@ public class MinecraftServerManager extends Listener {
 	}
 	
 	private void loadBackupManager() {
+		File backupManagerFile = new File(dataDirectory, BACKUP_MANAGER_FILE);
+		if(!backupManagerFile.exists()) {
+			System.out.println("No backup manager file found. Creating new backup manager.");
+			backupManager = new BackupManager(serverDirectory, DATA_DIR_NAME);
+			return;
+		}
+		
 		try (
-				BufferedReader backupReader = new BufferedReader(new FileReader(BACKUP_MANAGER_FILE));
+				BufferedReader backupReader = new BufferedReader(new FileReader(new File(dataDirectory, BACKUP_MANAGER_FILE)));
 		) {
+			
+			
 			backupManager = Json.fromJson(backupReader, BackupManager.class);
 			backupManager.setServerDir(serverDirectory);
 			backupReader.close();
@@ -209,13 +238,13 @@ public class MinecraftServerManager extends Listener {
 			}
 		} catch (IOException e) {
 			System.err.printf("Error reading backup manager file: %s\n", e.getMessage());
-			backupManager = new BackupManager(serverDirectory, BACKUP_DEFAULT_DIR);
+			backupManager = new BackupManager(serverDirectory, DATA_DIR_NAME);
 		}
 	}
 	
 	private void saveBackupManager() {
 		try (
-				BufferedWriter backupWriter = new BufferedWriter(new FileWriter(BACKUP_MANAGER_FILE));
+				BufferedWriter backupWriter = new BufferedWriter(new FileWriter(new File(dataDirectory, BACKUP_MANAGER_FILE)));
 		) {
 			Gson gson = Json.newBuilder().setPrettyPrinting().create();
 			gson.toJson(backupManager, backupManager.getClass(), backupWriter);
@@ -227,7 +256,7 @@ public class MinecraftServerManager extends Listener {
 	
 	private void savePlayers() {
 		try (
-				BufferedWriter playerWriter = new BufferedWriter(new FileWriter(PLAYERS_FILE));
+				BufferedWriter playerWriter = new BufferedWriter(new FileWriter(new File(dataDirectory, PLAYERS_FILE)));
 		) {
 			Gson gson = Json.newBuilder().setPrettyPrinting().create();
 			gson.toJson(players, players.getClass(), playerWriter);
@@ -239,7 +268,7 @@ public class MinecraftServerManager extends Listener {
 	
 	private void loadPlayers() {
 		try (
-				BufferedReader playerReader = new BufferedReader(new FileReader(PLAYERS_FILE));
+				BufferedReader playerReader = new BufferedReader(new FileReader(new File(dataDirectory, PLAYERS_FILE)));
 		) {
 			Type hashMapType = new TypeToken<HashMap<String, Player>>(){}.getType();
 			players = Json.fromJson(playerReader, hashMapType);

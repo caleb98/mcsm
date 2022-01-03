@@ -19,13 +19,6 @@ public class MCSMStart {
 		//Load the actions
 		Action.init();
 		
-		//Load the tasks from the user file
-		try {
-			Tasks.loadTasks();
-		} catch (IOException e) {
-			System.err.printf("Unable to load tasks: %s\n", e.getMessage());
-		}
-		
 		//Start MCSM
 		MinecraftServerManager mcsm = new MinecraftServerManager(args[0]);
 		mcsm.start();

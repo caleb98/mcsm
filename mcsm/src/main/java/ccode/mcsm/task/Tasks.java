@@ -40,9 +40,9 @@ public class Tasks {
 		TASK_DEFINITION = Pattern.compile(regex);
 	}
 	
-	public static void loadTasks() throws IOException {
+	public static void loadTasks(File dataDirectory) throws IOException {
 		//If the tasks file doesn't exists, go ahead and create it
-		File tasksFile = new File(TASKS_FILE_NAME);
+		File tasksFile = new File(dataDirectory, TASKS_FILE_NAME);
 		if(!tasksFile.exists()) {
 			tasksFile.createNewFile();
 		}
