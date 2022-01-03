@@ -184,7 +184,7 @@ public class MinecraftServerManager extends Listener {
 			if(event instanceof PlayerAuthEvent) {
 				PlayerAuthEvent auth = (PlayerAuthEvent) event;
 				if(!players.containsKey(auth.uuid)) {
-					players.put(auth.uuid, new Player(auth.player, auth.uuid, Permissions.NO_PERMISSIONS));
+					players.put(auth.uuid, new Player(auth.player, auth.uuid, Permissions.EVERYONE));
 				}
 			}
 			return false;
@@ -306,7 +306,7 @@ public class MinecraftServerManager extends Listener {
 				
 				//If player isn't already registered, add them now
 				if(!players.containsKey(uuid)) {
-					Player p = new Player(user.get("name").getAsString(), uuid, Permissions.NO_PERMISSIONS);
+					Player p = new Player(user.get("name").getAsString(), uuid, Permissions.EVERYONE);
 					players.put(uuid, p);
 				}
 			}

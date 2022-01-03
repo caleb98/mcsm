@@ -63,7 +63,7 @@ public class Task {
 		}
 		
 		// Otherwise, calculate based on the called actions
-		Permissions maxPermission = Permissions.NO_PERMISSIONS;
+		Permissions maxPermission = Permissions.EVERYONE;
 		for(String a : this.actions) {
 			String actionID = a.split("\s+")[0];
 			Action action = Action.get(actionID);

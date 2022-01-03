@@ -15,7 +15,7 @@ public class StopServerAction extends Action {
 	public static final String ID = "StopServer";
 	
 	StopServerAction() {
-		super(ID, Permissions.MODERATOR);
+		super(ID, Permissions.SERVER_OPERATOR);
 	}
 	
 	@Override

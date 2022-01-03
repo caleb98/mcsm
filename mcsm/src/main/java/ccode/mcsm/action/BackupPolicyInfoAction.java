@@ -14,7 +14,7 @@ public class BackupPolicyInfoAction extends Action {
 	public static final String ID = "BackupPolicyInfo";
 	
 	public BackupPolicyInfoAction() {
-		super(ID, Permissions.MODERATOR);
+		super(ID, Permissions.SERVER_OPERATOR);
 	}
 
 	@Override

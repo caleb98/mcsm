@@ -9,7 +9,7 @@ public class GetPermissionLevelAction extends Action {
 	public static final String ID = "GetPermissionLevel";
 	
 	GetPermissionLevelAction() {
-		super(ID, Permissions.NO_PERMISSIONS);
+		super(ID, Permissions.EVERYONE);
 	}
 	
 	@Override

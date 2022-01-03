@@ -17,7 +17,7 @@ public class ListTasksAction extends Action {
 	public static final String ID = "ListTasks";
 	
 	ListTasksAction() {
-		super(ID, Permissions.LEVEL_0);
+		super(ID, Permissions.EVERYONE);
 	}
 	
 	@Override

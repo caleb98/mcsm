@@ -13,7 +13,7 @@ public class CancelScheduleAction extends Action {
 	public static final String ID = "CancelSchedule";
 	
 	public CancelScheduleAction() {
-		super(ID, Permissions.SERVER_OPERATOR);
+		super(ID, Permissions.MODERATOR);
 	}
 	
 	@Override

@@ -22,7 +22,7 @@ public class NewPasswordAction extends Action {
 			"!@#$%^&*()-+=";
 	
 	public NewPasswordAction() {
-		super(ID, Permissions.NO_PERMISSIONS);
+		super(ID, Permissions.EVERYONE);
 	}
 
 	@Override

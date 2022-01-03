@@ -15,7 +15,7 @@ public class TaskAction extends Action {
 	TaskAction() {
 		//Tasks require their own permissions, so set the Task action
 		//permission level to 0.
-		super(ID, Permissions.LEVEL_0);
+		super(ID, Permissions.EVERYONE);
 	}
 	
 	@Override

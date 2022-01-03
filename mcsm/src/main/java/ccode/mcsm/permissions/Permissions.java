@@ -2,15 +2,12 @@ package ccode.mcsm.permissions;
 
 public enum Permissions implements Comparable<Permissions> {
 
-	MCSM_EXECUTOR(1000),	//The MCSM process itself
-	SERVER_OWNER(100),		//The server owner
-	SERVER_OPERATOR(10),	//Any operators (co-owners)
-	MODERATOR(4),			//Moderators
-	LEVEL_3(3),				
-	LEVEL_2(2),
-	LEVEL_1(1),
-	LEVEL_0(0),
-	NO_PERMISSIONS(0);		//No permissions at all. Default level
+	MCSM_EXECUTOR(100),		// The MCSM process
+	SERVER_OWNER(20),		// The server owner
+	SERVER_OPERATOR(15),	// Server operators/co-owners
+	MODERATOR(10),			// Server moderators
+	TRUSTED(5),				// Trusted players
+	EVERYONE(0);			// Default permissions level for everyone on the server
 	
 	public final int level;
 	

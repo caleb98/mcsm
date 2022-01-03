@@ -11,7 +11,7 @@ public class BackupWorldAction extends Action {
 	public static final String ID = "BackupWorld";
 	
 	BackupWorldAction() {
-		super(ID, Permissions.SERVER_OPERATOR);
+		super(ID, Permissions.MODERATOR);
 	}
 	
 	@Override

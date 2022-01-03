@@ -39,7 +39,7 @@ public class ScheduleAction extends Action {
 	private static final long DAY_MILLIS = HOUR_MILLIS * 24;
 	
 	ScheduleAction() {
-		super(ID, Permissions.SERVER_OPERATOR);
+		super(ID, Permissions.MODERATOR);
 	}
 	
 	@Override

@@ -15,7 +15,7 @@ public class SetPermissionLevelAction extends Action {
 
 	@Override
 	public int execute(MinecraftServerManager manager, Executor executor, String args) {
-		String[] split = args.split("\s+");
+		String[] split = args.trim().split("\s+");
 		if(split.length != 2) {
 			executor.sendMessage(manager, "Error: invalid number of arguments for SetPermissionsLevel");
 			return -1;
