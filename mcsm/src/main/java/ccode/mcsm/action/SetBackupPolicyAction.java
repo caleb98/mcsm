@@ -15,7 +15,7 @@ public class SetBackupPolicyAction extends Action {
 	public static final String ID = "SetBackupPolicy";
 	
 	public static final Pattern ARGUMENT_PATTERN = Pattern.compile(
-			String.format("(%s|%s|%s)([ \\w\\d]+)+",
+			String.format("([\\w\\d]+) (\\w+)([ \\w\\d]+)*",
 					NoLimitPolicy.class.getSimpleName(),
 					MaxCapacityPolicy.class.getSimpleName(),
 					MaxCountPolicy.class.getSimpleName()));
@@ -28,37 +28,32 @@ public class SetBackupPolicyAction extends Action {
 	public int execute(MinecraftServerManager manager, Executor executor, String args) {
 		Matcher m = ARGUMENT_PATTERN.matcher(args);
 		if(!m.matches()) {
-			executor.sendMessage(manager, "Invalid arguments. Provide a policy name, world name, and any required values for that policy.");
+			executor.sendMessage(manager, "Invalid arguments. Provide a world name, policy name, and any required values for that policy.");
 			return -1;
 		}
 		
-		String policyType = m.group(1);
-		String policyArgsFull = m.group(2);
-		String[] policyArgs = policyArgsFull.trim().split("\\s+");
-		
-		//Check that world name is provided
-		if(policyArgs.length < 1) {
-			executor.sendMessage(manager, "Invalid arguments. Provide a policy name, world name, and any required values for that policy.");
-			return -1;
-		}
+		String worldName = m.group(1);
+		String policyType = m.group(2);
+		String policyArgsFull = m.group(3);
+		String[] policyArgs = policyArgsFull == null ? new String[]{} : policyArgsFull.trim().split("\\s+");
 		
 		//Check for NoLimitPolicy
 		if(policyType.equals(NoLimitPolicy.class.getSimpleName())) {
 			manager.getBackupManager().getPolicies()
-				.put(policyArgs[0], new NoLimitPolicy(manager.getBackupManager()));
+				.put(worldName, new NoLimitPolicy(manager.getBackupManager()));
 		}
 		
 		//Check for MaxCapacityPolicy
 		else if(policyType.equals(MaxCapacityPolicy.class.getSimpleName())) {
-			if(policyArgs.length < 2) {
+			if(policyArgs.length < 1) {
 				executor.sendMessage(manager, "Invalid arguments for this policy type. Expected max capacity (in bytes).");
 				return -1;
 			}
 
 			try {
-				long maxBytes = Long.parseLong(policyArgs[1]);
+				long maxBytes = Long.parseLong(policyArgs[0]);
 				manager.getBackupManager().getPolicies()
-					.put(policyArgs[0], new MaxCapacityPolicy(manager.getBackupManager(), maxBytes));
+					.put(worldName, new MaxCapacityPolicy(manager.getBackupManager(), maxBytes));
 			} catch (NumberFormatException e) {
 				executor.sendMessage(manager, "Error reading max bytes value: %s", e.getMessage());
 				return -1;
@@ -67,24 +62,23 @@ public class SetBackupPolicyAction extends Action {
 		
 		//Check for MaxCountPolicy
 		else if(policyType.equals(MaxCountPolicy.class.getSimpleName())) {
-			if(policyArgs.length < 2) {
-				executor.sendMessage(manager, "Invalid arguments for this policy type. Expected world name and maximum number of backups.");
+			if(policyArgs.length < 1) {
+				executor.sendMessage(manager, "Invalid arguments for this policy type. Expected maximum number of backups.");
 				return -1;
 			}
 			
 			try {
-				int maxCount = Integer.parseInt(policyArgs[1]);
+				int maxCount = Integer.parseInt(policyArgs[0]);
 				manager.getBackupManager().getPolicies()
-					.put(policyArgs[0], new MaxCountPolicy(manager.getBackupManager(), maxCount));
+					.put(worldName, new MaxCountPolicy(manager.getBackupManager(), maxCount));
 			} catch (NumberFormatException e) {
 				executor.sendMessage(manager, "Error reading max backups value: %s", e.getMessage());
 				return -1;
 			}
 		}
 		
-		//Horrible error, since we matched but didn't have an acceptable policy.
 		else {
-			executor.sendMessage(manager, "Error setting policy. This error should never be reached, so if you see this message please report it.");
+			executor.sendMessage(manager, "Unable to set policy. Policy type " + policyType + " does not exist.");
 			return -1;
 		}
 		
