@@ -51,7 +51,7 @@ public class SetBackupPolicyAction extends Action {
 		//Check for MaxCapacityPolicy
 		else if(policyType.equals(MaxCapacityPolicy.class.getSimpleName())) {
 			if(policyArgs.length < 2) {
-				executor.sendMessage(manager, "Invalid arguments. Please provide the max capacity (in bytes) for this policy.");
+				executor.sendMessage(manager, "Invalid arguments for this policy type. Expected max capacity (in bytes).");
 				return -1;
 			}
 
@@ -68,7 +68,7 @@ public class SetBackupPolicyAction extends Action {
 		//Check for MaxCountPolicy
 		else if(policyType.equals(MaxCountPolicy.class.getSimpleName())) {
 			if(policyArgs.length < 2) {
-				executor.sendMessage(manager, "Invalid arguments. Please provide the max number of backups for this policy.");
+				executor.sendMessage(manager, "Invalid arguments for this policy type. Expected world name and maximum number of backups.");
 				return -1;
 			}
 			

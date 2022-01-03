@@ -22,9 +22,9 @@ public class BackupManager {
 	//worldName -> BackupPolicy
 	private HashMap<String, BackupPolicy> backupPolicies = new HashMap<>();
 	
-	public BackupManager(File serverDir, String backupDirectory) {
+	public BackupManager(File serverDir, File backupDirectory) throws IOException {
 		this.serverDir = serverDir;
-		this.backupDirectory = backupDirectory;
+		this.backupDirectory = backupDirectory.getCanonicalPath();
 	}
 	
 	public void setServerDir(File serverDir) {

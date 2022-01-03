@@ -211,16 +211,20 @@ public class MinecraftServerManager extends Listener {
 	private void loadBackupManager() {
 		File backupManagerFile = new File(dataDirectory, BACKUP_MANAGER_FILE);
 		if(!backupManagerFile.exists()) {
+			
 			System.out.println("No backup manager file found. Creating new backup manager.");
-			backupManager = new BackupManager(serverDirectory, DATA_DIR_NAME);
+			try {
+				backupManager = new BackupManager(serverDirectory, dataDirectory);
+			} catch (IOException e) {
+				System.err.printf("Unable to create new backup manager: %s\n", e.getMessage());
+				System.exit(-1);
+			}
 			return;
 		}
 		
 		try (
 				BufferedReader backupReader = new BufferedReader(new FileReader(new File(dataDirectory, BACKUP_MANAGER_FILE)));
 		) {
-			
-			
 			backupManager = Json.fromJson(backupReader, BackupManager.class);
 			backupManager.setServerDir(serverDirectory);
 			backupReader.close();
@@ -238,7 +242,13 @@ public class MinecraftServerManager extends Listener {
 			}
 		} catch (IOException e) {
 			System.err.printf("Error reading backup manager file: %s\n", e.getMessage());
-			backupManager = new BackupManager(serverDirectory, DATA_DIR_NAME);
+			System.out.println("Attempting to create new backup manager file.");
+			try {
+				backupManager = new BackupManager(serverDirectory, dataDirectory);
+			} catch (IOException e2) {
+				System.err.printf("Unable to create new backup manager: %s\n", e2.getMessage());
+				System.exit(-1);
+			}
 		}
 	}
 	
