@@ -17,17 +17,17 @@ public class ListTasksAction extends Action {
 	public static final String ID = "ListTasks";
 	
 	ListTasksAction() {
-		super(ID, Permissions.MODERATOR);
+		super(ID, Permissions.LEVEL_0);
 	}
 	
 	@Override
 	public int execute(MinecraftServerManager manager, Executor executor, String args) {
 		ArrayList<String> tasks = new ArrayList<>(Tasks.getTasks());
 		Collections.sort(tasks);
-		//TODO: task permission levels
 		executor.sendMessage(manager, "Available tasks: ");
 		for(String task : tasks) {
-			executor.sendMessage(manager, " > %s", task);
+			if(executor.hasPermissions(Tasks.getTask(task)))
+				executor.sendMessage(manager, " > %s", task);
 		}
 		return 0;
 	}

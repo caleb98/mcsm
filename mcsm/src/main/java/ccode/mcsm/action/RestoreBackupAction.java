@@ -77,7 +77,13 @@ public class RestoreBackupAction extends Action {
 		File restore = backups[backupNumber];
 		
 		//Rename current file in case restore fails
-		File tempCurrentWorld = new File(currentWorldFile.getName() + "_temp");
+		File tempCurrentWorld;
+		try {
+			tempCurrentWorld = new File(currentWorldFile.getCanonicalPath() + "_temp");
+		} catch (IOException e1) {
+			System.err.printf("Error renaming existing world folder: %s\n", e1.getMessage());
+			return -1;
+		}
 		if(tempCurrentWorld.exists()) {
 			deleteRecursive(tempCurrentWorld);
 		}

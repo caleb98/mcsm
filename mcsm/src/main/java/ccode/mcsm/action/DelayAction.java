@@ -19,7 +19,7 @@ public class DelayAction extends Action {
 
 	public static final String ID = "Delay";
 	
-	public static final Pattern ARGUMENT_PATTERN = Pattern.compile("(?:(\\d+)h)?(?:(\\d+)m)?(?:(\\d+)s)");
+	public static final Pattern ARGUMENT_PATTERN = Pattern.compile("(?:(\\d+)h)?(?:(\\d+)m)?(?:(\\d+)s)?");
 	
 	DelayAction() {
 		super(ID, Permissions.MODERATOR);

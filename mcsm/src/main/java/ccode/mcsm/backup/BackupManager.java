@@ -17,14 +17,14 @@ public class BackupManager {
 	/**
 	 * The directory where the backups are stored.
 	 */
-	private String backupDirectory;
+	private transient File backupDirectory;
 	
 	//worldName -> BackupPolicy
 	private HashMap<String, BackupPolicy> backupPolicies = new HashMap<>();
 	
 	public BackupManager(File serverDir, File backupDirectory) throws IOException {
 		this.serverDir = serverDir;
-		this.backupDirectory = backupDirectory.getCanonicalPath();
+		this.backupDirectory = backupDirectory;
 	}
 	
 	public void setServerDir(File serverDir) {
@@ -35,11 +35,11 @@ public class BackupManager {
 		return serverDir;
 	}
 	
-	public void setBackupDirectory(String backupDir) {
+	public void setBackupDirectory(File backupDir) {
 		backupDirectory = backupDir;
 	}
 	
-	public String getBackupDirectory() {
+	public File getBackupDirectory() {
 		return backupDirectory;
 	}
 	
@@ -65,6 +65,9 @@ public class BackupManager {
 	
 	public File[] getBackupFiles(String worldName) {
 		File backupDir = new File(backupDirectory + File.separator + worldName);
+		if(!backupDir.exists()) {
+			backupDir.mkdirs();
+		}
 		//Get backup files
 		File[] backups = backupDir.listFiles((f)->{
 			return f.getName().matches("\\d{4}\\.\\d{2}\\.\\d{2}_\\d{2}\\.\\d{2}\\.\\d{2}\\.zip");

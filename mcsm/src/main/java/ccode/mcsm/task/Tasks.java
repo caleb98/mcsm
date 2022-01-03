@@ -122,6 +122,10 @@ public class Tasks {
 		System.out.printf("Loaded task:\t%s (%s, argc=%d)\n", taskID, task.requiredPermission, task.argc);
 	}
 	
+	public static Task getTask(String task) {
+		return tasks.get(task);
+	}
+	
 	public static void executeTask(MinecraftServerManager manager, Executor executor, String taskID, String taskArgsString) {
 		if(tasks.containsKey(taskID)) {
 			Task task = tasks.get(taskID);

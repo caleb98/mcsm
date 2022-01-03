@@ -214,7 +214,7 @@ public class MinecraftServerManager extends Listener {
 			
 			System.out.println("No backup manager file found. Creating new backup manager.");
 			try {
-				backupManager = new BackupManager(serverDirectory, dataDirectory);
+				backupManager = new BackupManager(serverDirectory, new File(dataDirectory, "backups"));
 			} catch (IOException e) {
 				System.err.printf("Unable to create new backup manager: %s\n", e.getMessage());
 				System.exit(-1);
@@ -227,6 +227,7 @@ public class MinecraftServerManager extends Listener {
 		) {
 			backupManager = Json.fromJson(backupReader, BackupManager.class);
 			backupManager.setServerDir(serverDirectory);
+			backupManager.setBackupDirectory(new File(dataDirectory, "backups"));
 			backupReader.close();
 			
 			//Link backup manager to policies; add NoLimitPolicy for worlds which had errors parsing
