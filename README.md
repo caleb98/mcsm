@@ -1,5 +1,5 @@
 # Minecraft Server Manager - mcsm
-A utility program for owners of minecraft servers that makes it easy to maintain high-quality servers both from the host system and remotely.
+A utility program for owners of minecraft servers that makes it easy to maintain high-quality servers from the host system, remotely, and even via the in-game chat.
 The program works by wrapping the standard minecraft server process and reading/writing to it's stdout/stdin streams. This allows administrators to issue commands in game that are capable of creating server backups, restarting the server, etc. No more needing to SSH into the host system!  
 
 **Current features include:**
